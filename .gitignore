@@ -1,0 +1,11 @@
+.playwright-cli/
+tmp/
+__pycache__/
+*.pyc
+
+temp_*.js
+temp_*.json
+~$*.docx
+
+output/local_server/*.pid
+output/local_server/*.log

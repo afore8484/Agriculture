@@ -1,0 +1,49 @@
+﻿metric_code,module,page,metric_name,aggregation,grain,source_table,source_field,filter_keys,notes
+FIN.OVR.COUNTY_CNT,finance,F1_Overview,county_count,count,region,time,dim_region,region_code,"region_code,date_range",region_level=2
+FIN.OVR.TOWN_CNT,finance,F1_Overview,town_count,count,region,time,dim_region,region_code,"region_code,date_range",region_level=3
+FIN.OVR.VILLAGE_CNT,finance,F1_Overview,village_org_count,count,region,time,dim_org,org_code,"region_code,date_range",org_type=village_collective
+FIN.OVR.UNCLOSED_LAST_M,finance,F1_Overview,unclosed_last_month_count,count,region,month,fact_village_finance_monthly,org_code,"region_code,month",is_closed=false
+FIN.OVR.ACCSET_MISSING,finance,F1_Overview,account_set_missing_count,count,region,month,fact_village_finance_monthly,org_code,"region_code,month",is_account_set_created=false
+FIN.INC.ABOVE_5W_CNT,finance,F2_IncomeBand,above_50k_count,count,region,month,fact_village_finance_monthly,org_code,"region_code,month",total_income>=50000
+FIN.INC.ABOVE_10W_CNT,finance,F2_IncomeBand,above_100k_count,count,region,month,fact_village_finance_monthly,org_code,"region_code,month",total_income>=100000
+FIN.INC.ABOVE_20W_CNT,finance,F2_IncomeBand,above_200k_count,count,region,month,fact_village_finance_monthly,org_code,"region_code,month",total_income>=200000
+FIN.INC.BELOW_5W_CNT,finance,F2_IncomeBand,below_50k_count,count,region,month,fact_village_finance_monthly,org_code,"region_code,month",total_income<50000
+FIN.INC.BELOW_10W_CNT,finance,F2_IncomeBand,below_100k_count,count,region,month,fact_village_finance_monthly,org_code,"region_code,month",total_income<100000
+FIN.INC.BELOW_20W_CNT,finance,F2_IncomeBand,below_200k_count,count,region,month,fact_village_finance_monthly,org_code,"region_code,month",total_income<200000
+FIN.INC.ABOVE_5W_PCT,finance,F2_IncomeBand,above_50k_ratio,ratio,region,month,mv_finance_income_band_summary,above_50k_ratio,"region_code,month",derived metric
+FIN.INC.ABOVE_10W_PCT,finance,F2_IncomeBand,above_100k_ratio,ratio,region,month,mv_finance_income_band_summary,above_100k_ratio,"region_code,month",derived metric
+FIN.INC.ABOVE_20W_PCT,finance,F2_IncomeBand,above_200k_ratio,ratio,region,month,mv_finance_income_band_summary,above_200k_ratio,"region_code,month",derived metric
+FIN.DET.TOTAL_INCOME,finance,F3_IncomeDrilldown,total_income,sum,org,month,fact_village_finance_monthly,total_income,"region_code,month,threshold",detail table
+FIN.DET.OP_INCOME,finance,F3_IncomeDrilldown,operating_income,sum,org,month,fact_village_finance_monthly,operating_income,"region_code,month,threshold",detail table
+FIN.DET.SUBSIDY_INCOME,finance,F3_IncomeDrilldown,subsidy_income,sum,org,month,fact_village_finance_monthly,subsidy_income,"region_code,month,threshold",detail table
+FIN.DET.INVEST_INCOME,finance,F3_IncomeDrilldown,investment_income,sum,org,month,fact_village_finance_monthly,investment_income,"region_code,month,threshold",detail table
+FIN.DET.OTHER_INCOME,finance,F3_IncomeDrilldown,other_income,sum,org,month,fact_village_finance_monthly,other_income,"region_code,month,threshold",detail table
+FIN.IND.CASH,finance,F4_FinancialIndicators,currency_funds,sum,region,month,fact_village_finance_monthly,currency_funds,"region_code,month",indicator
+FIN.IND.AR,finance,F4_FinancialIndicators,accounts_receivable,sum,region,month,fact_village_finance_monthly,accounts_receivable,"region_code,month",indicator
+FIN.IND.INVENTORY,finance,F4_FinancialIndicators,inventory,sum,region,month,fact_village_finance_monthly,inventory,"region_code,month",indicator
+FIN.IND.FIXED_ASSET,finance,F4_FinancialIndicators,fixed_assets_net,sum,region,month,fact_village_finance_monthly,fixed_assets_net,"region_code,month",indicator
+FIN.IND.AP,finance,F4_FinancialIndicators,accounts_payable,sum,region,month,fact_village_finance_monthly,accounts_payable,"region_code,month",indicator
+FIN.IND.OP_INCOME,finance,F4_FinancialIndicators,operating_income,sum,region,month,fact_village_finance_monthly,operating_income,"region_code,month",indicator
+FIN.IND.OP_EXPENSE,finance,F4_FinancialIndicators,operating_expense,sum,region,month,fact_village_finance_monthly,operating_expense,"region_code,month",indicator
+FIN.IND.MGMT_EXPENSE,finance,F4_FinancialIndicators,management_expense,sum,region,month,fact_village_finance_monthly,management_expense,"region_code,month",indicator
+FIN.IND.YEAR_PROFIT,finance,F4_FinancialIndicators,year_profit,sum,region,month,fact_village_finance_monthly,year_profit,"region_code,month",indicator
+FIN.IND.UNDIST_PROFIT,finance,F4_FinancialIndicators,undistributed_profit,sum,region,month,fact_village_finance_monthly,undistributed_profit,"region_code,month",indicator
+FIN.BS.ASSET_TOTAL,finance,F5_BalanceSheet,asset_total,sum,region,snapshot,fact_balance_sheet_snapshot,asset_total,"region_code,snapshot_date",derived by account rollup
+FIN.BS.LIABILITY_TOTAL,finance,F5_BalanceSheet,liability_total,sum,region,snapshot,fact_balance_sheet_snapshot,liability_total,"region_code,snapshot_date",derived by account rollup
+FIN.BS.EQUITY_TOTAL,finance,F5_BalanceSheet,equity_total,sum,region,snapshot,fact_balance_sheet_snapshot,equity_total,"region_code,snapshot_date",derived by account rollup
+FIN.BS.BEGIN_VAL,finance,F5_BalanceSheet,line_begin_value,sum,region,snapshot,fact_balance_sheet_snapshot,value_begin_year,"region_code,snapshot_date,account_code",line level
+FIN.BS.END_VAL,finance,F5_BalanceSheet,line_end_value,sum,region,snapshot,fact_balance_sheet_snapshot,value_end_period,"region_code,snapshot_date,account_code",line level
+FIN.BS.DELTA,finance,F5_BalanceSheet,line_delta,sum,region,snapshot,fact_balance_sheet_snapshot,value_delta,"region_code,snapshot_date,account_code",line level
+FIN.IS.OP_INCOME,finance,F6_IncomeDistribution,statement_operating_income,sum,region,snapshot,fact_income_distribution_snapshot,amount,"region_code,snapshot_date,item_code",item_code=OP_INCOME
+FIN.IS.INVEST_INCOME,finance,F6_IncomeDistribution,statement_invest_income,sum,region,snapshot,fact_income_distribution_snapshot,amount,"region_code,snapshot_date,item_code",item_code=INVEST_INCOME
+FIN.IS.SUBSIDY_INCOME,finance,F6_IncomeDistribution,statement_subsidy_income,sum,region,snapshot,fact_income_distribution_snapshot,amount,"region_code,snapshot_date,item_code",item_code=SUBSIDY_INCOME
+FIN.IS.OP_EXPENSE,finance,F6_IncomeDistribution,statement_operating_expense,sum,region,snapshot,fact_income_distribution_snapshot,amount,"region_code,snapshot_date,item_code",item_code=OP_EXPENSE
+FIN.IS.MGMT_EXPENSE,finance,F6_IncomeDistribution,statement_management_expense,sum,region,snapshot,fact_income_distribution_snapshot,amount,"region_code,snapshot_date,item_code",item_code=MGMT_EXPENSE
+FIN.IS.TAX,finance,F6_IncomeDistribution,statement_tax,sum,region,snapshot,fact_income_distribution_snapshot,amount,"region_code,snapshot_date,item_code",item_code=TAX
+FIN.IS.NET_PROFIT,finance,F6_IncomeDistribution,statement_net_profit,sum,region,snapshot,fact_income_distribution_snapshot,amount,"region_code,snapshot_date,item_code",item_code=NET_PROFIT
+FIN.DIST.RESERVE,finance,F6_IncomeDistribution,reserve_fund_allocated,sum,region,snapshot,fact_income_distribution_snapshot,amount,"region_code,snapshot_date,item_code",item_code=RESERVE_FUND
+FIN.DIST.FARMER_DIV,finance,F6_IncomeDistribution,farmer_distribution,sum,region,snapshot,fact_income_distribution_snapshot,amount,"region_code,snapshot_date,item_code",item_code=FARMER_DISTRIBUTION
+FIN.DIST.END_UNDIST,finance,F6_IncomeDistribution,end_undistributed_profit,sum,region,snapshot,fact_income_distribution_snapshot,amount,"region_code,snapshot_date,item_code",item_code=END_UNDIST
+FIN.GIS.REGION_GEOM,finance,F1_F6_SharedGIS,region_geometry,spatial,region,static,dim_region,geom,"region_code",polygon geometry
+FIN.GIS.REGION_CENTROID,finance,F1_F6_SharedGIS,region_centroid,spatial,region,static,dim_region,centroid,"region_code",point geometry
+

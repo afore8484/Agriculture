@@ -1,0 +1,115 @@
+[
+  {
+    "module": "农经一张图",
+    "interface_count": 24,
+    "requirement_count": 242,
+    "requirement_status": {
+      "无需独立接口": 1,
+      "已覆盖": 239,
+      "部分覆盖": 2
+    },
+    "logical_object_count": 24,
+    "logical_status": {
+      "未覆盖": 24
+    },
+    "physical_object_count": 47,
+    "physical_status": {
+      "已覆盖": 19,
+      "部分覆盖": 27,
+      "未覆盖": 1
+    }
+  },
+  {
+    "module": "村委财务事务管理系统",
+    "interface_count": 64,
+    "requirement_count": 220,
+    "requirement_status": {
+      "已覆盖": 210,
+      "部分覆盖": 10
+    },
+    "logical_object_count": 75,
+    "logical_status": {
+      "未覆盖": 26,
+      "已覆盖": 28,
+      "部分覆盖": 21
+    },
+    "physical_object_count": 108,
+    "physical_status": {
+      "未覆盖": 108
+    }
+  },
+  {
+    "module": "村集体经济收入台账",
+    "interface_count": 30,
+    "requirement_count": 110,
+    "requirement_status": {
+      "已覆盖": 103,
+      "部分覆盖": 7
+    },
+    "logical_object_count": 35,
+    "logical_status": {
+      "未覆盖": 14,
+      "已覆盖": 19,
+      "部分覆盖": 2
+    },
+    "physical_object_count": 41,
+    "physical_status": {
+      "未覆盖": 34,
+      "已覆盖": 3,
+      "部分覆盖": 4
+    }
+  },
+  {
+    "module": "村集体绩效评价管理系统",
+    "interface_count": 23,
+    "requirement_count": 107,
+    "requirement_status": {
+      "部分覆盖": 14,
+      "已覆盖": 93
+    },
+    "logical_object_count": 20,
+    "logical_status": {
+      "未覆盖": 7,
+      "已覆盖": 13
+    },
+    "physical_object_count": 0,
+    "physical_status": {}
+  },
+  {
+    "module": "村集体智能审计系统",
+    "interface_count": 32,
+    "requirement_count": 141,
+    "requirement_status": {
+      "已覆盖": 129,
+      "部分覆盖": 12
+    },
+    "logical_object_count": 0,
+    "logical_status": {},
+    "physical_object_count": 59,
+    "physical_status": {
+      "部分覆盖": 21,
+      "已覆盖": 38
+    }
+  },
+  {
+    "module": "新型农业经营主体财务经营监管系统",
+    "interface_count": 47,
+    "requirement_count": 178,
+    "requirement_status": {
+      "已覆盖": 161,
+      "部分覆盖": 17
+    },
+    "logical_object_count": 22,
+    "logical_status": {
+      "未覆盖": 14,
+      "部分覆盖": 6,
+      "已覆盖": 2
+    },
+    "physical_object_count": 97,
+    "physical_status": {
+      "未覆盖": 21,
+      "部分覆盖": 50,
+      "已覆盖": 26
+    }
+  }
+]

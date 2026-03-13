@@ -1,0 +1,201 @@
+﻿<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>农经一张图-财务一张图原型（F1-F6 + 共享GIS）</title>
+  <style>
+    :root { --bg:#f3f7f5; --card:#fff; --line:#d8e4dd; --ink:#1b2b24; --muted:#5b6c63; --accent:#1e7a4d; }
+    * { box-sizing:border-box; }
+    body { margin:0; font-family:"Microsoft YaHei","PingFang SC","Segoe UI",sans-serif; background:var(--bg); color:var(--ink); }
+    .wrap { display:grid; grid-template-columns:240px 1fr; min-height:100vh; }
+    .side { background:#f9fcfa; border-right:1px solid var(--line); padding:16px; position:sticky; top:0; height:100vh; overflow:auto; }
+    .side h1 { margin:0 0 6px; font-size:18px; }
+    .side p { margin:0 0 12px; font-size:12px; color:var(--muted); }
+    .side a { display:block; margin:6px 0; padding:8px; border:1px solid var(--line); border-radius:8px; color:var(--ink); text-decoration:none; font-size:13px; background:#fff; }
+    .main { padding:18px; }
+    .bar,.frame { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px; margin-bottom:12px; }
+    .bar { display:grid; grid-template-columns:repeat(5,minmax(120px,1fr)); gap:8px; }
+    .bar label { font-size:11px; color:var(--muted); display:block; margin-bottom:4px; }
+    .bar select,.bar input,.bar button { width:100%; border:1px solid var(--line); border-radius:8px; padding:8px; font-size:12px; }
+    .bar button { background:var(--accent); color:#fff; border-color:var(--accent); font-weight:600; cursor:pointer; }
+    .title { margin:0 0 6px; font-size:18px; }
+    .desc { margin:0 0 10px; color:var(--muted); font-size:12px; }
+    .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .grid3{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+    .cmp { border:1px dashed #b8cdc2; border-radius:10px; padding:10px; background:#fcfffd; }
+    .cmp h3 { margin:0 0 6px; font-size:13px; }
+    .meta { font-size:11px; color:var(--muted); margin:2px 0; }
+    .badge { display:inline-block; font-size:10px; color:#1e7a4d; background:#e8f4ed; border:1px solid #cce3d3; border-radius:999px; padding:2px 8px; margin:2px 4px 2px 0; }
+    .btn { border:1px solid var(--line); background:#fff; border-radius:8px; padding:6px 8px; font-size:12px; cursor:pointer; }
+    .ctx { font-size:12px; margin:0; color:var(--muted); }
+    .table { width:100%; border-collapse:collapse; font-size:12px; margin-top:8px; }
+    .table th,.table td{ border:1px solid var(--line); padding:6px; text-align:left; }
+    .modal{ position:fixed; inset:0; display:none; align-items:center; justify-content:center; background:rgba(20,28,24,.45); }
+    .modal .box{ width:min(680px,92vw); background:#fff; border:1px solid var(--line); border-radius:12px; padding:12px; }
+    .modal pre{ background:#f8fcfa; border:1px solid var(--line); border-radius:8px; padding:10px; max-height:300px; overflow:auto; }
+    @media (max-width:1024px){ .wrap{grid-template-columns:1fr;} .side{position:static;height:auto;} .bar{grid-template-columns:1fr 1fr;} .grid2,.grid3{grid-template-columns:1fr;} }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <aside class="side">
+    <h1>农经一张图 · 财务一张图</h1>
+    <p>结构：F1-F6业务页面 + 共享GIS能力层（非独立主题页）</p>
+    <a href="#gis">共享GIS能力层</a>
+    <a href="#f1">F1 总览</a>
+    <a href="#f2">F2 收入分档</a>
+    <a href="#f3">F3 明细穿透</a>
+    <a href="#f4">F4 财务指标</a>
+    <a href="#f5">F5 资产负债分析</a>
+    <a href="#f6">F6 收益分配</a>
+  </aside>
+  <main class="main">
+    <section class="bar">
+      <div><label>行政区划</label><select id="regionSelect"><option value="HN">海南省</option><option value="HK">海口市</option><option value="SY">三亚市</option><option value="WC">文昌市</option></select></div>
+      <div><label>开始日期</label><input id="startDate" type="date" value="2026-01-01" /></div>
+      <div><label>结束日期</label><input id="endDate" type="date" value="2026-03-31" /></div>
+      <div><label>时间粒度</label><select id="granularity"><option value="month">月</option><option value="quarter">季度</option><option value="year">年度</option></select></div>
+      <div><label>应用筛选</label><button id="applyBtn">应用筛选</button></div>
+    </section>
+    <p class="ctx">当前筛选上下文：<strong id="ctx"></strong></p>
+
+    <section id="gis" class="frame">
+      <h2 class="title">共享GIS能力层（横切）</h2>
+      <p class="desc">GIS 不是独立业务主题页；它为 F1-F6 提供统一区划选择和联动上下文。</p>
+      <div class="cmp">
+        <h3>组件：全局GIS地图</h3>
+        <span class="badge">metric_code=FIN.GIS.REGION_GEOM</span>
+        <span class="badge">metric_code=FIN.GIS.REGION_CENTROID</span>
+        <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="btn mapRegion" data-region="HK">地图：海口市</button>
+          <button class="btn mapRegion" data-region="SY">地图：三亚市</button>
+          <button class="btn mapRegion" data-region="WC">地图：文昌市</button>
+        </div>
+      </div>
+      <div class="cmp" style="margin-top:10px;">
+        <h3>组件：地图弹窗指标</h3>
+        <span class="badge">metric_code=FIN.OVR.VILLAGE_CNT</span>
+        <span class="badge">metric_code=FIN.IND.YEAR_PROFIT</span>
+        <p class="meta">地图点选后可跳转 F1/F4，并带入同一 region_code。</p>
+      </div>
+    </section>
+
+    <section id="f1" class="frame">
+      <h2 class="title">F1 总览</h2>
+      <p class="desc">时间天气、区划总量、未结账与未建账套。</p>
+      <div class="grid2">
+        <div class="cmp"><h3>组件：区划数量卡片</h3><span class="badge">FIN.OVR.COUNTY_CNT</span><span class="badge">FIN.OVR.TOWN_CNT</span><span class="badge">FIN.OVR.VILLAGE_CNT</span></div>
+        <div class="cmp"><h3>组件：天气信息卡</h3><span class="badge">FIN.OVR.WEATHER_TYPE</span><span class="badge">FIN.OVR.WEATHER_TEMP</span><p class="meta">示例：多云 24-30℃</p></div>
+        <div class="cmp"><h3>组件：财务状态卡片</h3><span class="badge">FIN.OVR.UNCLOSED_LAST_M</span><span class="badge">FIN.OVR.ACCSET_MISSING</span><div style="margin-top:8px;"><button class="btn" data-export="F1">导出快照</button></div></div>
+      </div>
+    </section>
+
+    <section id="f2" class="frame">
+      <h2 class="title">F2 收入分档</h2>
+      <p class="desc">按 5w/10w/20w 分档，支持趋势和区域分布。</p>
+      <div class="cmp">
+        <h3>组件：分档切换</h3>
+        <span class="badge">FIN.INC.ABOVE_5W_CNT</span><span class="badge">FIN.INC.ABOVE_10W_CNT</span><span class="badge">FIN.INC.ABOVE_20W_CNT</span>
+        <span class="badge">FIN.INC.BELOW_5W_CNT</span><span class="badge">FIN.INC.BELOW_10W_CNT</span><span class="badge">FIN.INC.BELOW_20W_CNT</span>
+        <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="btn threshold" data-threshold=">=5w">>=5w</button>
+          <button class="btn threshold" data-threshold=">=10w">>=10w</button>
+          <button class="btn threshold" data-threshold=">=20w">>=20w</button>
+          <button class="btn threshold" data-threshold="<5w"><5w</button>
+          <button class="btn" id="toF3">进入 F3 明细穿透</button>
+        </div>
+        <p class="meta">当前阈值：<strong id="thresholdCtx">>=5w</strong></p>
+      </div>
+      <div class="grid2" style="margin-top:10px;">
+        <div class="cmp"><h3>组件：分档占比图</h3><span class="badge">FIN.INC.ABOVE_5W_PCT</span><span class="badge">FIN.INC.ABOVE_10W_PCT</span><span class="badge">FIN.INC.ABOVE_20W_PCT</span><span class="badge">FIN.INC.BELOW_5W_PCT</span><span class="badge">FIN.INC.BELOW_10W_PCT</span><span class="badge">FIN.INC.BELOW_20W_PCT</span></div>
+        <div class="cmp"><h3>组件：分档趋势图</h3><span class="badge">FIN.INC.ABOVE_5W_CNT</span><span class="badge">FIN.INC.BELOW_5W_CNT</span></div>
+      </div>
+    </section>
+
+    <section id="f3" class="frame">
+      <h2 class="title">F3 明细穿透</h2>
+      <p class="desc">村级明细列表，支持导出。</p>
+      <div class="cmp">
+        <h3>组件：明细表</h3>
+        <span class="badge">FIN.DET.TOTAL_INCOME</span><span class="badge">FIN.DET.OP_INCOME</span><span class="badge">FIN.DET.SUBSIDY_INCOME</span><span class="badge">FIN.DET.INVEST_INCOME</span><span class="badge">FIN.DET.OTHER_INCOME</span>
+        <table class="table"><thead><tr><th>村集体</th><th>总收入</th><th>经营收入</th><th>补助收入</th><th>操作</th></tr></thead><tbody><tr><td>示例村A</td><td>120000</td><td>65000</td><td>20000</td><td><button class="btn" data-export="F3">导出</button></td></tr><tr><td>示例村B</td><td>48000</td><td>29000</td><td>9000</td><td><button class="btn" data-export="F3">导出</button></td></tr></tbody></table>
+      </div>
+    </section>
+
+    <section id="f4" class="frame">
+      <h2 class="title">F4 财务指标</h2>
+      <p class="desc">资产负债和收支核心指标。</p>
+      <div class="grid2">
+        <div class="cmp"><h3>组件：资产负债指标卡</h3><span class="badge">FIN.IND.CASH</span><span class="badge">FIN.IND.AR</span><span class="badge">FIN.IND.INVENTORY</span><span class="badge">FIN.IND.FIXED_ASSET</span><span class="badge">FIN.IND.AP</span></div>
+        <div class="cmp"><h3>组件：收支指标卡</h3><span class="badge">FIN.IND.OP_INCOME</span><span class="badge">FIN.IND.OP_EXPENSE</span><span class="badge">FIN.IND.MGMT_EXPENSE</span><span class="badge">FIN.IND.YEAR_PROFIT</span><span class="badge">FIN.IND.UNDIST_PROFIT</span></div>
+      </div>
+    </section>
+
+    <section id="f5" class="frame">
+      <h2 class="title">F5 资产负债分析</h2>
+      <p class="desc">资产负债汇总、行次明细和变动。</p>
+      <div class="grid3">
+        <div class="cmp"><h3>组件：资产负债汇总卡</h3><span class="badge">FIN.BS.ASSET_TOTAL</span><span class="badge">FIN.BS.LIABILITY_TOTAL</span><span class="badge">FIN.BS.EQUITY_TOTAL</span></div>
+        <div class="cmp"><h3>组件：变动图</h3><span class="badge">FIN.BS.DELTA</span></div>
+        <div class="cmp"><h3>组件：行次表</h3><span class="badge">FIN.BS.BEGIN_VAL</span><span class="badge">FIN.BS.END_VAL</span><span class="badge">FIN.BS.DELTA</span><div style="margin-top:8px;"><button class="btn" data-export="F5">导出</button></div></div>
+      </div>
+    </section>
+
+    <section id="f6" class="frame">
+      <h2 class="title">F6 收益分配</h2>
+      <p class="desc">收益及收益分配表，支持查询与导出。</p>
+      <div class="grid2">
+        <div class="cmp"><h3>组件：收益分配明细表</h3><span class="badge">FIN.IS.OP_INCOME</span><span class="badge">FIN.IS.INVEST_INCOME</span><span class="badge">FIN.IS.SUBSIDY_INCOME</span><span class="badge">FIN.IS.OP_EXPENSE</span><span class="badge">FIN.IS.MGMT_EXPENSE</span><span class="badge">FIN.IS.TAX</span><span class="badge">FIN.IS.NET_PROFIT</span><div style="margin-top:8px;"><button class="btn" data-export="F6">导出</button></div></div>
+        <div class="cmp"><h3>组件：分配结果卡</h3><span class="badge">FIN.DIST.RESERVE</span><span class="badge">FIN.DIST.FARMER_DIV</span><span class="badge">FIN.DIST.END_UNDIST</span></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div class="modal" id="exportModal"><div class="box"><h3 style="margin:0 0 8px;">导出筛选快照</h3><pre id="snapshot"></pre><button class="btn" id="closeModal">关闭</button></div></div>
+
+<script>
+  const regionSelect = document.getElementById('regionSelect');
+  const startDate = document.getElementById('startDate');
+  const endDate = document.getElementById('endDate');
+  const granularity = document.getElementById('granularity');
+  const thresholdCtx = document.getElementById('thresholdCtx');
+  const ctx = document.getElementById('ctx');
+
+  function updateContext(){
+    ctx.textContent = `${regionSelect.value} | ${startDate.value} -> ${endDate.value} | ${granularity.value} | 阈值=${thresholdCtx.textContent}`;
+  }
+
+  document.getElementById('applyBtn').addEventListener('click', updateContext);
+  document.querySelectorAll('.threshold').forEach(btn => btn.addEventListener('click', () => {
+    thresholdCtx.textContent = btn.dataset.threshold;
+    updateContext();
+  }));
+  document.getElementById('toF3').addEventListener('click', () => location.hash = '#f3');
+  document.querySelectorAll('.mapRegion').forEach(btn => btn.addEventListener('click', () => {
+    regionSelect.value = btn.dataset.region;
+    updateContext();
+  }));
+
+  const modal = document.getElementById('exportModal');
+  const snapshot = document.getElementById('snapshot');
+  document.querySelectorAll('[data-export]').forEach(btn => btn.addEventListener('click', () => {
+    const payload = {
+      来源页面: btn.dataset.export,
+      区划: regionSelect.value,
+      开始日期: startDate.value,
+      结束日期: endDate.value,
+      时间粒度: granularity.value,
+      分档阈值: thresholdCtx.textContent
+    };
+    snapshot.textContent = JSON.stringify(payload, null, 2);
+    modal.style.display = 'flex';
+  }));
+  document.getElementById('closeModal').addEventListener('click', () => { modal.style.display = 'none'; });
+
+  updateContext();
+</script>
+</body>
+</html>

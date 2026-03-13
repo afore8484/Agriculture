@@ -1,0 +1,110 @@
+﻿<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>村委财务事务管理系统 - P02 财务中心-凭证管理</title>
+<style>
+:root{--bg:#f5f7fb;--card:#fff;--line:#d8dfec;--ink:#1f2937;--brand:#0f62bd}*{box-sizing:border-box}
+body{margin:0;font-family:"Microsoft YaHei",sans-serif;background:var(--bg);color:var(--ink)}
+header{padding:14px 18px;background:linear-gradient(130deg,#0f62bd,#2d8cf0);color:#fff}header h1{margin:0;font-size:20px}
+main{max-width:1200px;margin:14px auto;padding:0 10px;display:grid;gap:10px}.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px}
+.grid{display:grid;gap:8px}.q{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}.f{grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}
+label{display:grid;gap:4px;font-size:12px}input,select{height:32px;padding:6px 8px;border:1px solid #c9d3e7;border-radius:8px}
+.ops{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}button{height:32px;padding:0 10px;border:1px solid #a9c3ea;border-radius:8px;background:#f8fbff;cursor:pointer}
+table{width:100%;border-collapse:collapse;font-size:12px}th,td{border:1px solid #d7deeb;padding:6px}th{background:#f2f6fd}tr.sel{background:#e9f2ff}small{color:#64748b}
+</style>
+</head>
+<body>
+<header><h1>村委财务事务管理系统 - P02 财务中心-凭证管理</h1></header>
+<main>
+  <div class="card"><b>系统名称：</b>村委财务事务管理系统 | <b>页面编号：</b>P02 | <b>页面名称：</b>财务中心-凭证管理 | <b>所属模块：</b>财务中心</div>
+  <div class="card">
+    <h3>查询区</h3>
+    <div class="grid q">
+      <label>凭证编号<input id="qNo" /></label>
+      <label>开始日期<input id="qFrom" type="date" /></label>
+      <label>结束日期<input id="qTo" type="date" /></label>
+      <label>会计科目<input id="qSubject" /></label>
+      <label>最小金额<input id="qMin" type="number" /></label>
+      <label>最大金额<input id="qMax" type="number" /></label>
+      <label>审核状态<select id="qStatus"><option value="">全部</option><option>未审核</option><option>已审核</option></select></label>
+    </div>
+    <div class="ops"><button id="btnQuery">查询凭证</button></div>
+  </div>
+  <div class="card">
+    <h3>操作区</h3>
+    <div class="ops"><button id='btnNew'>新增凭证</button><button id='btnSaveAndNew'>保存并新增</button><button id='btnUpload'>上传附件</button><button id='btnAttachCount'>查看附单据数量</button><button id='btnPrintSetting'>打印设置</button><button id='btnPrint'>打印凭证</button><button id='btnAudit'>审核</button><button id='btnUnaudit'>反审核</button><button id='btnExport'>导出凭证</button><button id='btnModify'>修改凭证</button><button id='btnInsert'>插入凭证</button><button id='btnRecycleQuery'>回收站查询</button><button id='btnRestore'>还原已删除凭证</button><button id='btnPurge'>彻底删除凭证</button></div>
+    <input id="file" type="file" multiple style="display:none" />
+    <div>当前选中凭证：<b id="sel">未选择</b>；回收站选中：<b id="rsel">未选择</b></div>
+    <div>打印设置：纸张 <b id="pp">A4</b>，方向 <b id="pd">纵向</b>，份数 <b id="pc">1</b></div>
+    <small>严格模式：仅实现 JSON 定义功能点，不新增按钮。</small>
+  </div>
+  <div class="card">
+    <h3>表格区：凭证列表</h3>
+    <table>
+      <thead><tr><th>凭证编号</th><th>制单日期</th><th>摘要</th><th>会计科目</th><th>借方金额</th><th>贷方金额</th><th>附件数</th><th>审核状态</th></tr></thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+  <div class="card">
+    <h3>编辑区</h3>
+    <div class="grid f">
+      <label>凭证编号<input id="fNo" /></label>
+      <label>制单日期<input id="fDate" type="date" /></label>
+      <label>摘要<input id="fSummary" /></label>
+      <label>会计科目<input id="fSubject" /></label>
+      <label>借方金额<input id="fDebit" type="number" step="0.01" /></label>
+      <label>贷方金额<input id="fCredit" type="number" step="0.01" /></label>
+      <label>备注<input id="fRemark" /></label>
+      <label>附件<input id="fAttach" readonly /></label>
+      <label>审核状态<select id="fStatus"><option>未审核</option><option>已审核</option></select></label>
+    </div>
+  </div>
+  <div class="card">
+    <h3>回收站区</h3>
+    <table>
+      <thead><tr><th>凭证编号</th><th>制单日期</th><th>摘要</th><th>会计科目</th><th>借方金额</th><th>贷方金额</th><th>附件数</th><th>审核状态</th></tr></thead>
+      <tbody id="rbody"></tbody>
+    </table>
+  </div>
+  <div class="card" id="msg">就绪。</div>
+</main>
+<script>
+const S={
+v:[
+{id:'V20260301001',date:'2026-03-01',summary:'办公用品采购',subject:'管理费用',debit:320,credit:320,remark:'季度耗材',attachments:['invoice-001.pdf'],status:'未审核'},
+{id:'V20260302003',date:'2026-03-02',summary:'农资补贴发放',subject:'专项资金',debit:1500,credit:1500,remark:'第一批',attachments:['grant-list.xlsx','proof.jpg'],status:'已审核'},
+{id:'V20260303005',date:'2026-03-03',summary:'水电费结算',subject:'公用支出',debit:780,credit:780,remark:'2月账单',attachments:[],status:'未审核'}
+],
+r:[{id:'V20260228009',date:'2026-02-28',summary:'误录凭证',subject:'其他',debit:200,credit:200,remark:'待核销',attachments:['wrong.pdf'],status:'未审核'}],
+sel:'',rsel:'',list:[],print:{paper:'A4',dir:'纵向',copies:1}
+};
+const $=id=>document.getElementById(id),msg=t=>$("msg").textContent=t,m=v=>Number(v||0).toFixed(2);
+function row(r){return `<tr data-id='${r.id}'><td>${r.id}</td><td>${r.date}</td><td>${r.summary}</td><td>${r.subject}</td><td>${m(r.debit)}</td><td>${m(r.credit)}</td><td>${(r.attachments||[]).length}</td><td>${r.status}</td></tr>`;}
+function render(){const a=S.list.length?S.list:S.v;$("tbody").innerHTML=a.map(row).join("")||"<tr><td colspan='8'>无匹配凭证</td></tr>";[...$("tbody").querySelectorAll("tr[data-id]")].forEach(tr=>{if(tr.dataset.id===S.sel)tr.classList.add("sel");tr.onclick=()=>pick(tr.dataset.id);});$("rbody").innerHTML=S.r.map(row).join("")||"<tr><td colspan='8'>回收站为空</td></tr>";[...$("rbody").querySelectorAll("tr[data-id]")].forEach(tr=>{if(tr.dataset.id===S.rsel)tr.classList.add("sel");tr.onclick=()=>pickR(tr.dataset.id);});$("sel").textContent=S.sel||"未选择";$("rsel").textContent=S.rsel||"未选择";$("pp").textContent=S.print.paper;$("pd").textContent=S.print.dir;$("pc").textContent=S.print.copies;}
+function pick(id){S.sel=id;const r=S.v.find(x=>x.id===id);if(!r)return;$("fNo").value=r.id;$("fDate").value=r.date;$("fSummary").value=r.summary;$("fSubject").value=r.subject;$("fDebit").value=r.debit;$("fCredit").value=r.credit;$("fRemark").value=r.remark;$("fAttach").value=(r.attachments||[]).join("; ");$("fStatus").value=r.status;render();msg("已选中凭证："+id);}
+function pickR(id){S.rsel=id;render();msg("已选中回收站凭证："+id);}
+function form(){return{id:$("fNo").value.trim(),date:$("fDate").value,summary:$("fSummary").value.trim(),subject:$("fSubject").value.trim(),debit:Number($("fDebit").value||0),credit:Number($("fCredit").value||0),remark:$("fRemark").value.trim(),attachments:($("fAttach").value||"").split(";").map(x=>x.trim()).filter(Boolean),status:$("fStatus").value||"未审核"};}
+function valid(d){if(!d.date||!d.summary||!d.subject){msg("请填写制单日期、摘要、会计科目。");return false}return true;}
+function clearF(){$("fNo").value="";$("fDate").value="";$("fSummary").value="";$("fSubject").value="";$("fDebit").value="";$("fCredit").value="";$("fRemark").value="";$("fAttach").value="";$("fStatus").value="未审核";}
+function gen(){return "V"+new Date().toISOString().slice(0,10).replaceAll("-","")+String(S.v.length+S.r.length+1).padStart(3,"0");}
+$("btnQuery").onclick=()=>{const n=$("qNo").value.trim(),f=$("qFrom").value,t=$("qTo").value,s=$("qSubject").value.trim(),min=$("qMin").value,max=$("qMax").value,st=$("qStatus").value;S.list=S.v.filter(x=>{if(n&&!x.id.includes(n))return false;if(f&&x.date<f)return false;if(t&&x.date>t)return false;if(s&&!x.subject.includes(s))return false;if(min!==""&&x.debit<Number(min)&&x.credit<Number(min))return false;if(max!==""&&x.debit>Number(max)&&x.credit>Number(max))return false;if(st&&x.status!==st)return false;return true});render();msg("查询完成，共 "+S.list.length+" 条。");};
+$("btnNew").onclick=()=>{S.sel="";clearF();render();msg("进入新增状态。");};
+$("btnSaveAndNew").onclick=()=>{const d=form();if(!valid(d))return;d.id=d.id||gen();if(S.v.some(x=>x.id===d.id)){msg("凭证编号重复。");return}S.v.push(d);S.list=[...S.v];S.sel="";clearF();render();msg("保存并新增成功："+d.id);};
+$("btnModify").onclick=()=>{if(!S.sel){msg("请先选中凭证。");return}const i=S.v.findIndex(x=>x.id===S.sel),d=form();if(!valid(d))return;d.id=S.sel;S.v[i]=d;S.list=[...S.v];render();pick(d.id);msg("修改凭证成功："+d.id);};
+$("btnInsert").onclick=()=>{if(!S.sel){msg("请先选中凭证。");return}const d=form();if(!valid(d))return;d.id=d.id||gen();if(S.v.some(x=>x.id===d.id)){msg("凭证编号重复。");return}const i=S.v.findIndex(x=>x.id===S.sel);S.v.splice(i,0,d);S.list=[...S.v];render();msg("插入凭证成功："+d.id);};
+$("btnAudit").onclick=()=>{if(!S.sel){msg("请先选中凭证。");return}const r=S.v.find(x=>x.id===S.sel);r.status="已审核";$("fStatus").value="已审核";render();msg("审核完成："+r.id);};
+$("btnUnaudit").onclick=()=>{if(!S.sel){msg("请先选中凭证。");return}const r=S.v.find(x=>x.id===S.sel);r.status="未审核";$("fStatus").value="未审核";render();msg("反审核完成："+r.id);};
+$("btnUpload").onclick=()=>$("file").click();$("file").onchange=e=>{if(!S.sel){msg("请先选中凭证后上传附件。");return}const r=S.v.find(x=>x.id===S.sel),names=[...e.target.files].map(f=>f.name);if(!names.length)return;r.attachments=[...(r.attachments||[]),...names];$("fAttach").value=r.attachments.join("; ");render();msg("上传附件成功："+names.join(","));};
+$("btnAttachCount").onclick=()=>{if(!S.sel){msg("请先选中凭证。");return}const r=S.v.find(x=>x.id===S.sel),c=(r.attachments||[]).length;alert("附单据数量："+c);msg("附单据数量："+c);};
+$("btnPrintSetting").onclick=()=>{S.print.paper=prompt("纸张(A4/A5)",S.print.paper)||S.print.paper;S.print.dir=prompt("方向(纵向/横向)",S.print.dir)||S.print.dir;const cp=Number(prompt("份数",String(S.print.copies))||S.print.copies);S.print.copies=(cp>0&&Number.isFinite(cp))?Math.floor(cp):1;render();msg("打印设置已更新。");};
+$("btnPrint").onclick=()=>{if(!S.sel){msg("请先选中凭证。");return}const r=S.v.find(x=>x.id===S.sel);alert(["打印凭证预览","凭证编号："+r.id,"制单日期："+r.date,"摘要："+r.summary,"会计科目："+r.subject,"借方金额："+m(r.debit),"贷方金额："+m(r.credit),"审核状态："+r.status,"打印设置："+S.print.paper+" "+S.print.dir+" "+S.print.copies+"份"].join("\n"));msg("打印凭证完成(模拟)："+r.id);};
+$("btnExport").onclick=()=>{const rows=(S.list.length?S.list:S.v),h=["凭证编号","制单日期","摘要","会计科目","借方金额","贷方金额","附件数","审核状态"];const b=rows.map(r=>[r.id,r.date,r.summary,r.subject,m(r.debit),m(r.credit),String((r.attachments||[]).length),r.status]);const csv=[h,...b].map(c=>c.map(x=>'"'+String(x).replaceAll('"','""')+'"').join(',')).join("\n");const blob=new Blob(["\ufeff"+csv],{type:"text/csv;charset=utf-8;"});const u=URL.createObjectURL(blob);const a=document.createElement("a");a.href=u;a.download="P02_凭证导出_"+new Date().toISOString().slice(0,10)+".csv";a.click();URL.revokeObjectURL(u);msg("导出凭证完成。");};
+$("btnRecycleQuery").onclick=()=>{render();msg("回收站查询完成，共 "+S.r.length+" 条。");};
+$("btnRestore").onclick=()=>{if(!S.rsel){msg("请先选中回收站凭证。");return}const i=S.r.findIndex(x=>x.id===S.rsel),r=S.r.splice(i,1)[0];S.v.push(r);S.list=[...S.v];S.rsel="";render();msg("还原已删除凭证成功："+r.id);};
+$("btnPurge").onclick=()=>{if(!S.rsel){msg("请先选中回收站凭证。");return}const i=S.r.findIndex(x=>x.id===S.rsel),r=S.r[i];S.r.splice(i,1);S.rsel="";render();msg("彻底删除凭证成功："+r.id);};
+S.list=[...S.v];render();msg("页面已初始化，支持 P02 全部功能点交互模拟。");
+</script>
+</body>
+</html>

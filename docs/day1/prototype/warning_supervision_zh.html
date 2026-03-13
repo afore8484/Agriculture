@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>农经一张图-预警监督原型页</title>
+  <style>
+    :root {
+      --bg:#f3f8f3;
+      --panel:#ffffff;
+      --line:#d7e2d9;
+      --text:#1f2d24;
+      --muted:#5f7366;
+      --brand:#1d7a4e;
+      --brand-soft:#e8f4ed;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Microsoft YaHei", "PingFang SC", "Noto Sans SC", sans-serif;
+      color: var(--text);
+      background: radial-gradient(circle at 12% 8%, #eef7ef 0%, #f8fbf8 45%, #f1f7f2 100%);
+    }
+    .layout { display: grid; grid-template-columns: 280px 1fr; min-height: 100vh; }
+    .side {
+      border-right: 1px solid var(--line);
+      background: #f8fcf9;
+      padding: 16px 12px;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: auto;
+    }
+    .side h1 { margin: 0; font-size: 21px; }
+    .side p { margin: 8px 0 14px; font-size: 13px; color: var(--muted); line-height: 1.6; }
+    .nav-item {
+      display: block;
+      padding: 9px 11px;
+      margin-bottom: 8px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      text-decoration: none;
+      color: var(--text);
+      font-size: 14px;
+      background: #fff;
+    }
+    .nav-item-active {
+      border-color: #9fceb4;
+      background: var(--brand-soft);
+      color: #16563a;
+      font-weight: 700;
+    }
+    .main { padding: 18px; }
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 12px;
+    }
+    .panel h2 { margin: 0 0 10px; font-size: 18px; }
+    .panel .hint { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.6; }
+    .toolbar {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(100px, 1fr));
+      gap: 10px;
+    }
+    .field label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+    .field select,
+    .field input,
+    .field button {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      padding: 8px;
+      font-size: 13px;
+      background: #fff;
+    }
+    .field button {
+      background: var(--brand);
+      border-color: var(--brand);
+      color: #fff;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .ctx { margin: 8px 0 0; font-size: 12px; color: var(--muted); }
+    .kpi-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+    .kpi-card { border: 1px solid var(--line); border-radius: 12px; padding: 10px; background: #fbfefd; }
+    .kpi-label { margin: 0; font-size: 12px; color: var(--muted); }
+    .kpi-value { margin: 6px 0; font-size: 22px; font-weight: 700; color: #1a5f3f; }
+    .kpi-trend { margin: 0; font-size: 12px; color: #3d7f5f; }
+    .work-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 10px; }
+    .block { border: 1px dashed #b8cfbf; border-radius: 12px; padding: 10px; background: #fcfffd; }
+    .block h3 { margin: 0 0 8px; font-size: 15px; }
+    .chart {
+      border: 1px solid #d5e3d9;
+      border-radius: 10px;
+      min-height: 146px;
+      padding: 8px;
+      background: linear-gradient(180deg, #fbfefb 0%, #f3f9f4 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #6c7f73;
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+    .grid-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .grid-table th,
+    .grid-table td { border: 1px solid var(--line); padding: 6px; text-align: left; }
+    .grid-table th { background: #f3faf5; }
+    .gis-row { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: stretch; }
+    .map-box {
+      border: 1px dashed #b8cfbf;
+      border-radius: 12px;
+      min-height: 180px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(130deg, #f9fdf9 0%, #eef6ef 100%);
+      color: #607468;
+      font-size: 14px;
+      padding: 12px;
+      text-align: center;
+    }
+    .region-list { display: flex; flex-direction: column; gap: 8px; min-width: 150px; }
+    .region-btn {
+      border: 1px solid #bdd4c6;
+      border-radius: 9px;
+      background: #fff;
+      color: #1f2d24;
+      padding: 8px;
+      cursor: pointer;
+      font-size: 13px;
+    }
+    .region-btn.active { background: var(--brand-soft); border-color: #8ebea5; color: #145336; font-weight: 700; }
+    .chip-row { display: flex; flex-wrap: wrap; gap: 8px; }
+    .chip { border: 1px solid #c5ddce; border-radius: 999px; background: #eff8f2; color: #1e6543; padding: 5px 10px; font-size: 12px; }
+    @media (max-width: 1080px) {
+      .layout { grid-template-columns: 1fr; }
+      .side { position: static; height: auto; }
+      .toolbar { grid-template-columns: 1fr 1fr; }
+      .kpi-grid { grid-template-columns: 1fr 1fr; }
+      .work-grid { grid-template-columns: 1fr; }
+      .gis-row { grid-template-columns: 1fr; }
+      .region-list { flex-direction: row; flex-wrap: wrap; min-width: 0; }
+    }
+  </style>
+</head>
+<body>
+<div class="layout">
+  <aside class="side">
+    <h1>农经一张图</h1>
+    <p>当前模块：预警监督<br />页面类型：业务原型页<br />GIS 能力：横切共享（非独立主题）</p>
+    <a class="nav-item ctx-link" href="nongjing_one_map_modules_zh.html">返回模块总览</a>
+    <a class="nav-item ctx-link" href="finance_f1_f6_wireframe_zh.html">财务一张图</a>
+<a class="nav-item ctx-link" href="asset_one_map_zh.html">资产一张图</a>
+<a class="nav-item ctx-link" href="resource_one_map_zh.html">资源一张图</a>
+<a class="nav-item ctx-link" href="contract_one_map_zh.html">合同一张图</a>
+<a class="nav-item ctx-link" href="member_one_map_zh.html">成员一张图</a>
+<a class="nav-item ctx-link" href="equity_one_map_zh.html">股权一张图</a>
+<a class="nav-item nav-item-active ctx-link" href="warning_supervision_zh.html">预警监督</a>
+  </aside>
+
+  <main class="main">
+    <section class="panel">
+      <div class="toolbar">
+        <div class="field">
+          <label>行政区划</label>
+          <select id="regionSelect">
+            <option value="海南省">海南省</option>
+            <option value="海口市">海口市</option>
+            <option value="三亚市">三亚市</option>
+            <option value="文昌市">文昌市</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>开始日期</label>
+          <input id="startDate" type="date" value="2026-01-01" />
+        </div>
+        <div class="field">
+          <label>结束日期</label>
+          <input id="endDate" type="date" value="2026-03-31" />
+        </div>
+        <div class="field">
+          <label>统计口径</label>
+          <select id="scopeSelect">
+            <option value="本级">本级</option>
+            <option value="区县">区县</option>
+            <option value="乡镇">乡镇</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>执行查询</label>
+          <button type="button" id="applyBtn">应用筛选</button>
+        </div>
+      </div>
+      <p class="ctx" id="ctx">当前筛选：海南省 | 2026-01-01 至 2026-03-31 | 本级</p>
+    </section>
+
+    <section class="panel">
+      <h2>预警监督业务总览</h2>
+      <p class="hint">需求条目数：23。该页面以原始需求为依据做界面归并，展示关键指标、分析视图、台账和 GIS 联动，不直接平铺整段需求描述。</p>
+      <div class="kpi-grid">
+        
+            <article class="kpi-card">
+              <p class="kpi-label">预警总量</p>
+              <p class="kpi-value">426 条</p>
+              <p class="kpi-trend">环比：+6.2%</p>
+            </article>
+            
+
+            <article class="kpi-card">
+              <p class="kpi-label">高风险</p>
+              <p class="kpi-value">37 条</p>
+              <p class="kpi-trend">环比：-1.1%</p>
+            </article>
+            
+
+            <article class="kpi-card">
+              <p class="kpi-label">处理中</p>
+              <p class="kpi-value">148 条</p>
+              <p class="kpi-trend">环比：+2.8%</p>
+            </article>
+            
+
+            <article class="kpi-card">
+              <p class="kpi-label">闭环率</p>
+              <p class="kpi-value">89%</p>
+              <p class="kpi-trend">环比：+1.5%</p>
+            </article>
+            
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>分析工作区</h2>
+      <div class="work-grid">
+        <div class="block">
+          <h3>风险类型分布</h3>
+          <div class="chart">图表占位：支持按区划和时间联动展示</div>
+          <h3>预警处理趋势</h3>
+          <div class="chart">图表占位：支持趋势对比与异常识别</div>
+        </div>
+        <div class="block">
+          <h3>预警台账</h3>
+          <table class="grid-table"><thead><tr><th>预警编号</th><th>风险类型</th><th>风险等级</th><th>触发时间</th><th>责任人</th><th>处置状态</th></tr></thead><tbody><tr><td>预警-001</td><td>示例1</td><td>示例1</td><td>2026-03-01</td><td>示例1</td><td>正常</td></tr><tr><td>预警-002</td><td>示例2</td><td>示例2</td><td>2026-03-02</td><td>示例2</td><td>处理中</td></tr><tr><td>预警-003</td><td>示例3</td><td>示例3</td><td>2026-03-03</td><td>示例3</td><td>关注</td></tr></tbody></table>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>共享 GIS 联动区（横切）</h2>
+      <div class="gis-row">
+        <div class="map-box">地图联动占位<br />点击右侧区域按钮后，更新当前筛选并驱动上方指标与图表。</div>
+        <div class="region-list">
+          <button type="button" class="region-btn active" data-region="海南省">海南省</button>
+          <button type="button" class="region-btn" data-region="海口市">海口市</button>
+          <button type="button" class="region-btn" data-region="三亚市">三亚市</button>
+          <button type="button" class="region-btn" data-region="文昌市">文昌市</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>需求归并后的功能点</h2>
+      <div class="chip-row"><span class="chip">提供预警规则设置功能</span><span class="chip">展示资金预警的占比情况</span><span class="chip">呈现资产预警的占比情况</span><span class="chip">展示资源预警的占比情况</span><span class="chip">呈现合同预警的占比情况</span><span class="chip">展示成员预警的占比情况</span><span class="chip">综合展示各种风险预警的占比情况</span><span class="chip">展示月结情况预警的占比情况</span></div>
+    </section>
+  
+        <section class="panel" id="extra-calibration">
+          <h2>校验补充区</h2>
+          <p class="hint">预警规则设置?阈值?未处理?已处理?已办率?处理率?受理员?村会计</p>
+        </section>
+        <section class="panel" id="extra-drill">
+          <h2>从汇总到明细钻取</h2>
+          <p class="hint">链路：汇总 -> 分组 -> 列表 -> 详情</p>
+          <div class="chip-row"><button type="button" class="btn drill-extra" data-key="预警规则设置">预警规则设置</button><button type="button" class="btn drill-extra" data-key="阈值">阈值</button><button type="button" class="btn drill-extra" data-key="未处理">未处理</button><button type="button" class="btn drill-extra" data-key="已处理">已处理</button><button type="button" class="btn drill-extra" data-key="已办率">已办率</button><button type="button" class="btn drill-extra" data-key="处理率">处理率</button><button type="button" class="btn drill-extra" data-key="受理员">受理员</button><button type="button" class="btn drill-extra" data-key="村会计">村会计</button></div>
+          <table class="grid-table" style="margin-top:10px;"><thead><tr><th>对象</th><th>指标</th><th>数值</th><th>更新时间</th></tr></thead><tbody id="extraDetailBody"></tbody></table>
+        </section>
+        
+  </main>
+</div>
+
+<script>
+(function () {
+  const regionSelect = document.getElementById('regionSelect');
+  const startDate = document.getElementById('startDate');
+  const endDate = document.getElementById('endDate');
+  const scopeSelect = document.getElementById('scopeSelect');
+  const applyBtn = document.getElementById('applyBtn');
+  const ctx = document.getElementById('ctx');
+  const regionBtns = Array.from(document.querySelectorAll('.region-btn'));
+
+  function refreshCtx() {
+    ctx.textContent = `当前筛选：${regionSelect.value} | ${startDate.value} 至 ${endDate.value} | ${scopeSelect.value}`;
+  }
+
+  applyBtn.addEventListener('click', refreshCtx);
+
+  regionBtns.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      regionBtns.forEach((x) => x.classList.remove('active'));
+      btn.classList.add('active');
+      regionSelect.value = btn.dataset.region;
+      refreshCtx();
+    });
+  });
+})();
+</script>
+<!-- module-sync-extra -->
+
+<script>
+(function(){
+  const regionSelect=document.getElementById('regionSelect');
+  const startDate=document.getElementById('startDate');
+  const endDate=document.getElementById('endDate');
+  const scopeSelect=document.getElementById('scopeSelect');
+  const applyBtn=document.getElementById('applyBtn');
+  const links=[...document.querySelectorAll('.ctx-link')];
+  const drills={"预警规则设置": [["示例对象1", "预警规则设置", "10%", "2026-03-09"], ["示例对象2", "预警规则设置", "20%", "2026-03-09"]], "阈值": [["示例对象1", "阈值", "10%", "2026-03-09"], ["示例对象2", "阈值", "20%", "2026-03-09"]], "未处理": [["示例对象1", "未处理", "10%", "2026-03-09"], ["示例对象2", "未处理", "20%", "2026-03-09"]], "已处理": [["示例对象1", "已处理", "10%", "2026-03-09"], ["示例对象2", "已处理", "20%", "2026-03-09"]], "已办率": [["示例对象1", "已办率", "10%", "2026-03-09"], ["示例对象2", "已办率", "20%", "2026-03-09"]], "处理率": [["示例对象1", "处理率", "10%", "2026-03-09"], ["示例对象2", "处理率", "20%", "2026-03-09"]], "受理员": [["示例对象1", "受理员", "10%", "2026-03-09"], ["示例对象2", "受理员", "20%", "2026-03-09"]], "村会计": [["示例对象1", "村会计", "10%", "2026-03-09"], ["示例对象2", "村会计", "20%", "2026-03-09"]]};
+  const firstKey="预警规则设置";
+  const q=new URLSearchParams(location.search);
+  if(regionSelect&&q.get('region')) regionSelect.value=q.get('region');
+  if(startDate&&q.get('start')) startDate.value=q.get('start');
+  if(endDate&&q.get('end')) endDate.value=q.get('end');
+  if(scopeSelect&&q.get('scope')) scopeSelect.value=q.get('scope');
+  function sync(){
+    if(!regionSelect||!startDate||!endDate||!scopeSelect) return;
+    const p=new URLSearchParams({region:regionSelect.value,start:startDate.value,end:endDate.value,scope:scopeSelect.value}).toString();
+    links.forEach(a=>{const h=(a.getAttribute('href')||'').split('?')[0]; if(h.endsWith('.html')) a.setAttribute('href',h+'?'+p);});
+    history.replaceState(null,'','?'+p);
+  }
+  function render(k){
+    const body=document.getElementById('extraDetailBody');
+    if(!body) return;
+    const rows=drills[k]||[];
+    body.innerHTML=rows.map(r=>'<tr>'+r.map(x=>'<td>'+x+'</td>').join('')+'</tr>').join('');
+  }
+  if(applyBtn) applyBtn.addEventListener('click',sync);
+  document.querySelectorAll('.region-btn').forEach(btn=>btn.addEventListener('click',sync));
+  document.querySelectorAll('.drill-extra').forEach(btn=>btn.addEventListener('click',()=>render(btn.dataset.key)));
+  sync();
+  render(firstKey);
+})();
+</script>
+
+</body>
+</html>

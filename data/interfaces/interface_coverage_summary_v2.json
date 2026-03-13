@@ -1,0 +1,119 @@
+[
+  {
+    "module": "农经一张图",
+    "interface_count": 24,
+    "requirement_count": 242,
+    "requirement_status": {
+      "无需独立接口": 1,
+      "已覆盖": 239,
+      "部分覆盖": 2
+    },
+    "logical_object_count": 122,
+    "logical_status": {
+      "未覆盖": 107,
+      "已覆盖": 13,
+      "部分覆盖": 2
+    },
+    "physical_object_count": 77,
+    "physical_status": {
+      "已覆盖": 28,
+      "部分覆盖": 26,
+      "未覆盖": 23
+    }
+  },
+  {
+    "module": "村委财务事务管理系统",
+    "interface_count": 64,
+    "requirement_count": 220,
+    "requirement_status": {
+      "已覆盖": 210,
+      "部分覆盖": 10
+    },
+    "logical_object_count": 131,
+    "logical_status": {
+      "未覆盖": 51,
+      "已覆盖": 52,
+      "部分覆盖": 28
+    },
+    "physical_object_count": 115,
+    "physical_status": {
+      "未覆盖": 115
+    }
+  },
+  {
+    "module": "村集体经济收入台账",
+    "interface_count": 30,
+    "requirement_count": 110,
+    "requirement_status": {
+      "已覆盖": 103,
+      "部分覆盖": 7
+    },
+    "logical_object_count": 36,
+    "logical_status": {
+      "未覆盖": 14,
+      "已覆盖": 20,
+      "部分覆盖": 2
+    },
+    "physical_object_count": 41,
+    "physical_status": {
+      "未覆盖": 34,
+      "已覆盖": 3,
+      "部分覆盖": 4
+    }
+  },
+  {
+    "module": "村集体绩效评价管理系统",
+    "interface_count": 23,
+    "requirement_count": 107,
+    "requirement_status": {
+      "部分覆盖": 14,
+      "已覆盖": 93
+    },
+    "logical_object_count": 20,
+    "logical_status": {
+      "未覆盖": 7,
+      "已覆盖": 13
+    },
+    "physical_object_count": 0,
+    "physical_status": {}
+  },
+  {
+    "module": "村集体智能审计系统",
+    "interface_count": 32,
+    "requirement_count": 141,
+    "requirement_status": {
+      "已覆盖": 129,
+      "部分覆盖": 12
+    },
+    "logical_object_count": 1,
+    "logical_status": {
+      "未覆盖": 1
+    },
+    "physical_object_count": 59,
+    "physical_status": {
+      "部分覆盖": 17,
+      "已覆盖": 42
+    }
+  },
+  {
+    "module": "新型农业经营主体财务经营监管系统",
+    "interface_count": 47,
+    "requirement_count": 178,
+    "requirement_status": {
+      "已覆盖": 161,
+      "部分覆盖": 17
+    },
+    "logical_object_count": 22,
+    "logical_status": {
+      "未覆盖": 14,
+      "部分覆盖": 6,
+      "已覆盖": 2
+    },
+    "physical_object_count": 97,
+    "physical_status": {
+      "未覆盖": 21,
+      "部分覆盖": 45,
+      "已覆盖": 31
+    }
+  }
+]

@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>农经一张图-二级模块总览</title>
+  <style>
+    :root { --bg:#f4f8f3; --card:#fff; --line:#d7e3da; --ink:#1f2e24; --muted:#637567; --brand:#1f7a4f; }
+    * { box-sizing:border-box; }
+    body { margin:0; font-family:"Microsoft YaHei","PingFang SC","Noto Sans SC",sans-serif; color:var(--ink); background:linear-gradient(145deg,#f8fbf9 0%,#edf5ee 70%,#f9fcf8 100%); }
+    .wrap { max-width:1200px; margin:0 auto; padding:18px; }
+    .head { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:14px; margin-bottom:12px; }
+    h1 { margin:0; font-size:24px; }
+    .sub { margin:8px 0 0; color:var(--muted); font-size:13px; line-height:1.6; }
+    .quick { margin-top:10px; display:flex; flex-wrap:wrap; gap:8px; }
+    .quick a { text-decoration:none; color:var(--ink); border:1px solid var(--line); border-radius:999px; padding:6px 10px; font-size:12px; background:#fff; }
+    .grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; }
+    .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:12px; min-height:160px; display:flex; flex-direction:column; }
+    .card h2 { margin:0 0 8px; font-size:18px; }
+    .meta { margin:0 0 12px; color:var(--muted); font-size:13px; }
+    .btn { margin-top:auto; display:inline-block; text-decoration:none; text-align:center; border:1px solid var(--brand); color:#fff; background:var(--brand); padding:8px 10px; border-radius:10px; font-size:13px; font-weight:700; }
+    .note { margin-top:12px; color:var(--muted); font-size:12px; }
+    @media (max-width:1024px) { .grid { grid-template-columns:1fr 1fr; } }
+    @media (max-width:700px) { .grid { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="head">
+      <h1>农经一张图</h1>
+      <p class="sub">以下为二级模块总览。每个模块均可进入对应原型页。GIS 作为横切能力贯穿所有模块，不单列为独立主题模块。</p>
+      <div class="quick"><a href="#m-财务一张图">财务一张图</a><a href="#m-资产一张图">资产一张图</a><a href="#m-资源一张图">资源一张图</a><a href="#m-合同一张图">合同一张图</a><a href="#m-成员一张图">成员一张图</a><a href="#m-股权一张图">股权一张图</a><a href="#m-预警监督">预警监督</a></div>
+    </section>
+
+    
+    <section class="head" id="overview-calibration">
+      <h2 style="margin:0 0 10px;">总览校验区</h2>
+      <section style="display:grid;grid-template-columns:repeat(5,minmax(120px,1fr));gap:8px;">
+        <div><label style="font-size:12px;color:#637567;display:block;">行政区划</label><select id="region"><option>海南省</option><option>海口市</option><option>三亚市</option><option>文昌市</option></select></div>
+        <div><label style="font-size:12px;color:#637567;display:block;">开始日期</label><input id="start" type="date" value="2026-01-01" /></div>
+        <div><label style="font-size:12px;color:#637567;display:block;">结束日期</label><input id="end" type="date" value="2026-03-31" /></div>
+        <div><label style="font-size:12px;color:#637567;display:block;">统计口径</label><select id="scope"><option>本级</option><option>区县</option><option>乡镇</option></select></div>
+        <div><label style="font-size:12px;color:#637567;display:block;">执行查询</label><button id="apply" style="width:100%;padding:8px;border-radius:8px;border:1px solid #1f7a4f;background:#1f7a4f;color:#fff;">应用筛选</button></div>
+      </section>
+      <p id="ctx" style="margin:8px 0 0;color:#637567;font-size:12px;"></p>
+      <p style="margin:10px 0 6px;color:#637567;font-size:12px;">风险提示区</p>
+      <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:10px;">
+        <div style="border:1px solid #d7e3da;border-radius:10px;padding:8px;"><p style="margin:0;color:#637567;font-size:12px;">预警总量</p><strong>426</strong></div>
+        <div style="border:1px solid #d7e3da;border-radius:10px;padding:8px;"><p style="margin:0;color:#637567;font-size:12px;">未处理</p><strong>91</strong></div>
+        <div style="border:1px solid #d7e3da;border-radius:10px;padding:8px;"><p style="margin:0;color:#637567;font-size:12px;">处理中</p><strong>148</strong></div>
+        <div style="border:1px solid #d7e3da;border-radius:10px;padding:8px;"><p style="margin:0;color:#637567;font-size:12px;">已处理</p><strong>187</strong></div>
+      </div>
+      <div style="margin-top:10px;border:1px dashed #b8cfbf;border-radius:10px;padding:10px;">
+        <h3 style="margin:0 0 6px;">GIS联动区（横切）</h3>
+        <p style="margin:0;color:#637567;font-size:12px;">点击区域后将统一传递到专题页</p>
+      </div>
+    </section>
+    
+    <section class="grid">
+      
+            <section class="card" id="m-财务一张图">
+              <h2>财务一张图</h2>
+              <p class="meta">需求条目数：156</p>
+              <a class="btn" href="finance_f1_f6_wireframe_zh.html">进入详细原型</a>
+            </section>
+            
+
+            <section class="card" id="m-资产一张图">
+              <h2>资产一张图</h2>
+              <p class="meta">需求条目数：7</p>
+              <a class="btn" href="asset_one_map_zh.html">进入详细原型</a>
+            </section>
+            
+
+            <section class="card" id="m-资源一张图">
+              <h2>资源一张图</h2>
+              <p class="meta">需求条目数：6</p>
+              <a class="btn" href="resource_one_map_zh.html">进入详细原型</a>
+            </section>
+            
+
+            <section class="card" id="m-合同一张图">
+              <h2>合同一张图</h2>
+              <p class="meta">需求条目数：7</p>
+              <a class="btn" href="contract_one_map_zh.html">进入详细原型</a>
+            </section>
+            
+
+            <section class="card" id="m-成员一张图">
+              <h2>成员一张图</h2>
+              <p class="meta">需求条目数：24</p>
+              <a class="btn" href="member_one_map_zh.html">进入详细原型</a>
+            </section>
+            
+
+            <section class="card" id="m-股权一张图">
+              <h2>股权一张图</h2>
+              <p class="meta">需求条目数：19</p>
+              <a class="btn" href="equity_one_map_zh.html">进入详细原型</a>
+            </section>
+            
+
+            <section class="card" id="m-预警监督">
+              <h2>预警监督</h2>
+              <p class="meta">需求条目数：23</p>
+              <a class="btn" href="warning_supervision_zh.html">进入详细原型</a>
+            </section>
+            
+    </section>
+
+    <p class="note">数据源：data/requirements/nongjing_map_requirements.json（用于原型功能归并）</p>
+  </div>
+<!-- overview-sync -->
+
+<script>
+(function(){
+  const region=document.getElementById('region');
+  const start=document.getElementById('start');
+  const end=document.getElementById('end');
+  const scope=document.getElementById('scope');
+  const apply=document.getElementById('apply');
+  const ctx=document.getElementById('ctx');
+  const links=[...document.querySelectorAll('.btn[href$=".html"]')];
+  if(!region||!start||!end||!scope||!apply||!ctx) return;
+  const q=new URLSearchParams(location.search);
+  if(q.get('region')) region.value=q.get('region');
+  if(q.get('start')) start.value=q.get('start');
+  if(q.get('end')) end.value=q.get('end');
+  if(q.get('scope')) scope.value=q.get('scope');
+  function sync(){
+    const p=new URLSearchParams({region:region.value,start:start.value,end:end.value,scope:scope.value}).toString();
+    ctx.textContent='当前筛选' + ': ' + region.value + ' | ' + start.value + ' '至' + ' ' + end.value + ' | ' + scope.value;
+    links.forEach(a=>a.href=a.getAttribute('href').split('?')[0]+'?'+p);
+    history.replaceState(null,'','?'+p);
+  }
+  apply.addEventListener('click',sync);
+  sync();
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,93 @@
+{
+  "handoff_date": "2026-03-06",
+  "workspace": "E:/workspaces/Agriculture/prototype",
+  "current_goal": {
+    "module": "村委财务事务管理系统",
+    "deliverables": [
+      "数据结构设计",
+      "原型图",
+      "测试用例表"
+    ]
+  },
+  "completed": [
+    {
+      "name": "需求全量JSON",
+      "path": "data/requirements/requirements_full.json",
+      "status": "done"
+    },
+    {
+      "name": "需求索引JSON",
+      "path": "data/requirements/requirements_index.json",
+      "status": "done"
+    },
+    {
+      "name": "村委财务模块JSON",
+      "path": "data/requirements/requirements_village_finance.json",
+      "status": "done",
+      "record_count": 220
+    }
+  ],
+  "pending": [
+    {
+      "name": "数据结构文档",
+      "path": "docs/day2/village_finance_data_structure_v0_1.md",
+      "status": "done"
+    },
+    {
+      "name": "数据库DDL",
+      "path": "sql/postgres/village_finance_ops_v0_1.sql",
+      "status": "done"
+    },
+    {
+      "name": "原型流转文档",
+      "path": "docs/day2/prototype/village_finance_prototype_v0_1.md",
+      "status": "done"
+    },
+    {
+      "name": "测试用例表",
+      "path": "docs/day2/testing/village_finance_test_cases_v0_1.csv",
+      "status": "done"
+    }
+  ],
+  "quick_facts": {
+    "submodules": [
+      {
+        "name": "财务中心",
+        "count": 126
+      },
+      {
+        "name": "报表中心",
+        "count": 24
+      },
+      {
+        "name": "资产管理",
+        "count": 20
+      },
+      {
+        "name": "合同管理",
+        "count": 22
+      },
+      {
+        "name": "在线审批",
+        "count": 12
+      },
+      {
+        "name": "银农直联",
+        "count": 7
+      },
+      {
+        "name": "基层党建",
+        "count": 9
+      }
+    ],
+    "roles": [
+      "R1 村级财务综合岗",
+      "R2 村级审批负责人",
+      "R3 银农直联岗",
+      "R4 监管复核岗",
+      "R5 党建管理岗",
+      "R6 系统管理岗"
+    ],
+    "scenarios_range": "S01-S44"
+  }
+}

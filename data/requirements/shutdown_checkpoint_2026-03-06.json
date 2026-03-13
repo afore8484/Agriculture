@@ -1,0 +1,79 @@
+﻿{
+    "generated_at":  "2026-03-06T09:00:03+08:00",
+    "workspace":  "E:\\\\workspaces\\\\Agriculture\\\\prototype",
+    "active_scope":  "农经一张图（整体模块）",
+    "active_data_source":  "data/requirements/nongjing_map_requirements.json",
+    "completed":  [
+                      {
+                          "type":  "prototype",
+                          "module":  "财务一张图",
+                          "path":  "docs/day1/prototype/finance_f1_f6_wireframe_zh.html"
+                      },
+                      {
+                          "type":  "prototype",
+                          "module":  "总览页",
+                          "path":  "docs/day1/prototype/nongjing_one_map_modules_zh.html"
+                      },
+                      {
+                          "type":  "doc",
+                          "module":  "GIS横切说明",
+                          "path":  "docs/day1/prototype_page_tree.md"
+                      },
+                      {
+                          "type":  "doc",
+                          "module":  "Figma框架规范",
+                          "path":  "docs/day1/figma_frame_spec_finance.md"
+                      }
+                  ],
+    "pending":  [
+                    {
+                        "module":  "资产一张图",
+                        "target_file":  "docs/day1/prototype/asset_one_map_zh.html",
+                        "status":  "pending"
+                    },
+                    {
+                        "module":  "资源一张图",
+                        "target_file":  "docs/day1/prototype/resource_one_map_zh.html",
+                        "status":  "pending"
+                    },
+                    {
+                        "module":  "合同一张图",
+                        "target_file":  "docs/day1/prototype/contract_one_map_zh.html",
+                        "status":  "pending"
+                    },
+                    {
+                        "module":  "成员一张图",
+                        "target_file":  "docs/day1/prototype/member_one_map_zh.html",
+                        "status":  "pending"
+                    },
+                    {
+                        "module":  "股权一张图",
+                        "target_file":  "docs/day1/prototype/equity_one_map_zh.html",
+                        "status":  "pending"
+                    },
+                    {
+                        "module":  "预警监督",
+                        "target_file":  "docs/day1/prototype/warning_supervision_zh.html",
+                        "status":  "pending"
+                    }
+                ],
+    "constraints":  [
+                        "农经一张图按整体模块通盘设计",
+                        "GIS是横切能力，不作为独立主题模块",
+                        "页面文案全中文，避免英文占位",
+                        "严格显示二级模块名称",
+                        "数据库设计避免重复建表"
+                    ],
+    "acceptance_targets":  [
+                               "总览页7个模块均可点击进入详细原型",
+                               "无待展开占位文案",
+                               "中文显示无乱码"
+                           ],
+    "key_files":  [
+                      "docs/day1/shutdown_snapshot_2026-03-06.md",
+                      "data/requirements/requirements_full.json",
+                      "data/requirements/requirements_index.json",
+                      "data/requirements/nongjing_map_requirements.json",
+                      "sql/postgres/nongjing_analytics_v0_1.sql"
+                  ]
+}
