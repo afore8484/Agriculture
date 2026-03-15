@@ -1,0 +1,27 @@
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://${DB_HOST:127.0.0.1}:${DB_PORT:5432}/${DB_NAME:village_finance_dev}?currentSchema=${DB_SCHEMA:village_finance_ops}
+    username: ${DB_USER:village_finance}
+    password: ${DB_PASSWORD:9AsWSC4h0eq3JwfBzIpY}
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-init-sql: SET search_path TO ${DB_SCHEMA:village_finance_ops}, public
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    baseline-version: 0
+    create-schemas: true
+    default-schema: ${DB_SCHEMA:village_finance_ops}
+    schemas: ${DB_SCHEMA:village_finance_ops}
+    locations: classpath:db/migration
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+logging:
+  level:
+    com.agriculture.villagefinance: INFO

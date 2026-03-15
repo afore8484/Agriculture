@@ -34,10 +34,17 @@
 
 ## 当前状态
 
-1. 后端工程骨架尚未建立
-2. 数据库连接方式尚未落地
-3. 实际运行配置尚未提供
-4. Redis / MQ / 对象存储 / 外部接口依赖尚未确认
+1. 已初始化 Spring Boot + Maven 后端骨架
+2. 已接入 PostgreSQL + Flyway + MyBatis-Plus
+3. 已落地首批基础查询接口：
+   - `GET /api/village-finance/ledgers`
+   - `GET /api/village-finance/periods`
+   - `GET /api/village-finance/subjects/tree`
+4. 已补核心基础表迁移：
+   - `fin_book`
+   - `fin_period`
+   - `fin_subject`
+5. 凭证、账户、日记账、内部转账、对账、月结仍待继续实现
 
 ## 后续建议目录
 
