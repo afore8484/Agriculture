@@ -11,6 +11,7 @@ spring:
   flyway:
     enabled: true
     baseline-on-migrate: true
+    baseline-version: 0
     create-schemas: true
     default-schema: ${DB_SCHEMA:village_finance_ops}
     schemas: ${DB_SCHEMA:village_finance_ops}

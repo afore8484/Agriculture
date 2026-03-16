@@ -8,7 +8,7 @@ Write-Host "[恢复检查] 工作目录: $root" -ForegroundColor Cyan
 $files = @(
   "docs/day1/shutdown_snapshot_2026-03-06.md",
   "data/requirements/shutdown_checkpoint_2026-03-06.json",
-  "data/requirements/nongjing_map_requirements.json",
+  "data/requirements/nongjing-map/nongjing_map_requirements.json",
   "docs/day1/prototype/nongjing_one_map_modules_zh.html",
   "docs/day1/prototype/finance_f1_f6_wireframe_zh.html"
 )
@@ -41,3 +41,4 @@ Write-Host "`n[关键约束]" -ForegroundColor Yellow
 ) | ForEach-Object { Write-Host ("  - " + $_) }
 
 Write-Host "`n恢复完成。你可以从总览页开始继续：docs/day1/prototype/nongjing_one_map_modules_zh.html" -ForegroundColor Cyan
+

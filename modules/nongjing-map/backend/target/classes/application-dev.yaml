@@ -1,0 +1,27 @@
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://${DB_HOST:127.0.0.1}:${DB_PORT:5432}/${DB_NAME:nongjing_map_dev}?currentSchema=${DB_SCHEMA:nongjing_map}
+    username: ${DB_USER:nongjing_map}
+    password: ${DB_PASSWORD:replace-me}
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-init-sql: SET search_path TO ${DB_SCHEMA:nongjing_map}, public
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    baseline-version: 0
+    create-schemas: true
+    default-schema: ${DB_SCHEMA:nongjing_map}
+    schemas: ${DB_SCHEMA:nongjing_map}
+    locations: classpath:db/migration
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+logging:
+  level:
+    com.agriculture.nongjingmap: INFO

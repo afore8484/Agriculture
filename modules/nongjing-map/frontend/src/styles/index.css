@@ -1,0 +1,402 @@
+﻿@import './fonts.css';
+@import './tailwind.css';
+@import './theme.css';
+
+:root {
+  color-scheme: dark;
+  --bg: #07131d;
+  --bg-accent: #0d2232;
+  --panel: rgba(11, 29, 42, 0.88);
+  --panel-strong: #10283b;
+  --line: rgba(149, 197, 220, 0.18);
+  --text: #edf6fb;
+  --muted: #8fa8b9;
+  --primary: #53d2ff;
+  --secondary: #7ef0c1;
+  --warning: #ffbd59;
+  --danger: #ff7d7d;
+  --shadow: 0 20px 60px rgba(0, 0, 0, 0.28);
+  font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  background:
+    radial-gradient(circle at top left, rgba(83, 210, 255, 0.18), transparent 32%),
+    radial-gradient(circle at top right, rgba(126, 240, 193, 0.12), transparent 24%),
+    linear-gradient(180deg, #08131e 0%, #0b1a27 48%, #0a1320 100%);
+}
+
+* { box-sizing: border-box; }
+html, body, #root { min-height: 100%; margin: 0; }
+body { color: var(--text); background: transparent; }
+a { color: inherit; text-decoration: none; }
+button, select, input { font: inherit; }
+button { cursor: pointer; }
+
+.app-shell {
+  min-height: 100vh;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.topbar,
+.panel,
+.metric-card,
+.nav-card,
+.filter-card,
+.table-wrap,
+.api-panel,
+.region-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(12px);
+}
+
+.topbar {
+  border-radius: 20px;
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.brand-title {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.brand-subtitle,
+.subtle,
+.page-description,
+.small-note {
+  color: var(--muted);
+}
+
+.clock-box {
+  text-align: right;
+  min-width: 180px;
+}
+
+.clock-time {
+  font-size: 26px;
+  font-weight: 700;
+}
+
+.nav-row {
+  display: grid;
+  grid-template-columns: repeat(8, minmax(110px, 1fr));
+  gap: 12px;
+}
+
+.nav-card {
+  border-radius: 16px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+}
+
+.nav-card:hover,
+.nav-card.active {
+  transform: translateY(-2px);
+  border-color: rgba(83, 210, 255, 0.42);
+  background: linear-gradient(180deg, rgba(18, 45, 67, 0.95), rgba(11, 29, 42, 0.92));
+}
+
+.nav-title { font-weight: 600; }
+.nav-note { color: var(--muted); font-size: 12px; }
+
+.filter-card {
+  border-radius: 18px;
+  padding: 16px 18px;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(120px, 1fr));
+  gap: 12px;
+}
+
+.filter-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.filter-item label {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.select-box,
+.input-box {
+  border-radius: 12px;
+  border: 1px solid rgba(149, 197, 220, 0.22);
+  background: rgba(5, 16, 24, 0.9);
+  color: var(--text);
+  padding: 10px 12px;
+}
+
+.page-shell {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-end;
+}
+
+.page-title {
+  font-size: 26px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.metric-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.metric-card {
+  border-radius: 18px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.metric-label { color: var(--muted); font-size: 13px; }
+.metric-value { font-size: 28px; font-weight: 700; }
+.metric-hint { font-size: 12px; color: var(--muted); }
+.metric-status-positive { color: var(--secondary); }
+.metric-status-warning { color: var(--warning); }
+.metric-status-negative { color: var(--danger); }
+
+.content-grid {
+  display: grid;
+  grid-template-columns: 1.35fr 0.95fr;
+  gap: 16px;
+}
+
+.panel {
+  border-radius: 20px;
+  padding: 18px;
+}
+
+.section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.section-title {
+  margin: 0;
+  font-size: 18px;
+}
+
+.section-subtitle {
+  color: var(--muted);
+  font-size: 13px;
+  margin-top: 4px;
+}
+
+.table-wrap {
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.table-wrap table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table-wrap th,
+.table-wrap td {
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(149, 197, 220, 0.08);
+  text-align: left;
+  font-size: 13px;
+}
+
+.table-wrap th {
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.02);
+  font-weight: 500;
+}
+
+.table-wrap tr:hover td {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 12px;
+  border: 1px solid rgba(149, 197, 220, 0.15);
+  color: var(--muted);
+}
+
+.gis-layout {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 14px;
+}
+
+.region-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.region-card {
+  border-radius: 16px;
+  padding: 12px;
+  transition: transform 0.18s ease, border-color 0.18s ease;
+}
+
+.region-card.active,
+.region-card:hover {
+  transform: translateY(-1px);
+  border-color: rgba(83, 210, 255, 0.35);
+}
+
+.gis-stage {
+  border-radius: 18px;
+  border: 1px solid rgba(149, 197, 220, 0.14);
+  background:
+    linear-gradient(180deg, rgba(16, 40, 59, 0.82), rgba(6, 18, 27, 0.92)),
+    radial-gradient(circle at 20% 20%, rgba(83, 210, 255, 0.16), transparent 25%),
+    radial-gradient(circle at 82% 34%, rgba(126, 240, 193, 0.12), transparent 20%);
+  min-height: 360px;
+  position: relative;
+  overflow: hidden;
+}
+
+.gis-point {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  min-width: 118px;
+  border-radius: 14px;
+  padding: 10px 12px;
+  border: 1px solid rgba(149, 197, 220, 0.14);
+  background: rgba(7, 19, 29, 0.85);
+}
+
+.gis-point.active {
+  border-color: rgba(83, 210, 255, 0.45);
+  box-shadow: 0 0 0 1px rgba(83, 210, 255, 0.18), 0 10px 28px rgba(0, 0, 0, 0.25);
+}
+
+.gis-point-name { font-weight: 600; }
+.gis-point-stat { color: var(--muted); font-size: 12px; margin-top: 4px; }
+
+.overview-modules {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.module-card {
+  border-radius: 18px;
+  padding: 16px;
+  border: 1px solid rgba(149, 197, 220, 0.12);
+  background: rgba(255, 255, 255, 0.02);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.module-count { font-size: 30px; font-weight: 700; }
+
+.split-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(220px, 1fr));
+  gap: 14px;
+}
+
+.api-panel {
+  border-radius: 18px;
+  padding: 18px;
+}
+
+.api-list {
+  display: grid;
+  gap: 10px;
+}
+
+.api-item {
+  border: 1px solid rgba(149, 197, 220, 0.12);
+  border-radius: 14px;
+  padding: 12px;
+  display: grid;
+  gap: 4px;
+}
+
+.api-method {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--primary);
+}
+
+.empty-box,
+.error-box,
+.loading-box {
+  border-radius: 18px;
+  padding: 24px;
+  border: 1px dashed rgba(149, 197, 220, 0.22);
+  color: var(--muted);
+  text-align: center;
+}
+
+.legend-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 6px;
+}
+
+@media (max-width: 1280px) {
+  .nav-row,
+  .filter-card,
+  .metric-grid,
+  .split-grid-3,
+  .overview-modules,
+  .content-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .app-shell { padding: 14px; }
+  .topbar,
+  .page-header,
+  .gis-layout,
+  .nav-row,
+  .filter-card,
+  .metric-grid,
+  .split-grid-3,
+  .overview-modules,
+  .content-grid {
+    grid-template-columns: 1fr;
+    display: grid;
+  }
+  .topbar { display: grid; }
+  .clock-box { text-align: left; }
+}

@@ -61,7 +61,7 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--module-output",
-        default="data/requirements/nongjing_map_requirements.json",
+        default="data/requirements/nongjing-map/nongjing_map_requirements.json",
         help="Path to write standalone module JSON.",
     )
     parser.add_argument(
@@ -367,3 +367,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+

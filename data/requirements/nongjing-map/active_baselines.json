@@ -1,0 +1,23 @@
+﻿{
+  "module_name": "农经一张图",
+  "active_requirement_source": "data\\requirements\\nongjing-map\\nongjing_map_requirements.json",
+  "acceptance_baseline": {
+    "type": "markdown",
+    "path": "docs\\nongjing-map\\农经一张图-需求梳理.md",
+    "purpose": "原型图与需求吻合度验收基准"
+  },
+  "backend_development_baselines": [
+    {
+      "type": "markdown",
+      "path": "docs\\nongjing-map\\农经一张图标准接口文档.md",
+      "purpose": "后端服务接口开发基准"
+    },
+    {
+      "type": "markdown",
+      "path": "docs\\nongjing-map\\农经一张图数据结构文档.md",
+      "purpose": "后端服务数据模型与表结构开发基准"
+    }
+  ],
+  "updated_at": "2026-03-13T00:00:00+08:00",
+  "note": "当前线程讨论农经一张图时，优先以仓库内 docs/nongjing-map 下的三份基准文档作为验收和后端开发基准。"
+}

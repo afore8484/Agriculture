@@ -5,7 +5,7 @@ This package bootstraps parallel work for:
 - PostgreSQL 16 + PostGIS analytics schema (read model)
 
 ## Inputs
-- Requirement source: data/requirements/nongjing_map_requirements.json
+- Requirement source: data/requirements/nongjing-map/nongjing_map_requirements.json
 - Scope: all 7 submodules under Nongjing One-Map
 
 ## Files
@@ -48,5 +48,6 @@ This package bootstraps parallel work for:
 - Legacy file finance_f1_f7_wireframe_zh.html now redirects to finance_f1_f6_wireframe_zh.html.
 
 - 农经总览页（严格二级模块原名）: docs/day1/prototype/nongjing_one_map_modules_zh.html
+
 
 

@@ -549,7 +549,7 @@ def render_overview(module_counts: dict[str, int]) -> str:
       {cards}
     </section>
 
-    <p class="note">数据源：data/requirements/nongjing_map_requirements.json（用于原型功能归并）</p>
+    <p class="note">数据源：data/requirements/nongjing-map/nongjing_map_requirements.json（用于原型功能归并）</p>
   </div>
 </body>
 </html>
@@ -589,3 +589,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+

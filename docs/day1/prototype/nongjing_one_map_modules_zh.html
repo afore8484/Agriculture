@@ -1,10 +1,10 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>农经一张图-二级模块总览</title>
+  <title>鍐滅粡涓€寮犲浘-浜岀骇妯″潡鎬昏</title>
   <style>
     :root { --bg:#f4f8f3; --card:#fff; --line:#d7e3da; --ink:#1f2e24; --muted:#637567; --brand:#1f7a4f; }
     * { box-sizing:border-box; }
@@ -28,88 +28,88 @@
 <body>
   <div class="wrap">
     <section class="head">
-      <h1>农经一张图</h1>
-      <p class="sub">以下为二级模块总览。每个模块均可进入对应原型页。GIS 作为横切能力贯穿所有模块，不单列为独立主题模块。</p>
-      <div class="quick"><a href="#m-财务一张图">财务一张图</a><a href="#m-资产一张图">资产一张图</a><a href="#m-资源一张图">资源一张图</a><a href="#m-合同一张图">合同一张图</a><a href="#m-成员一张图">成员一张图</a><a href="#m-股权一张图">股权一张图</a><a href="#m-预警监督">预警监督</a></div>
+      <h1>鍐滅粡涓€寮犲浘</h1>
+      <p class="sub">浠ヤ笅涓轰簩绾фā鍧楁€昏銆傛瘡涓ā鍧楀潎鍙繘鍏ュ搴斿師鍨嬮〉銆侴IS 浣滀负妯垏鑳藉姏璐┛鎵€鏈夋ā鍧楋紝涓嶅崟鍒椾负鐙珛涓婚妯″潡銆?/p>
+      <div class="quick"><a href="#m-璐㈠姟涓€寮犲浘">璐㈠姟涓€寮犲浘</a><a href="#m-璧勪骇涓€寮犲浘">璧勪骇涓€寮犲浘</a><a href="#m-璧勬簮涓€寮犲浘">璧勬簮涓€寮犲浘</a><a href="#m-鍚堝悓涓€寮犲浘">鍚堝悓涓€寮犲浘</a><a href="#m-鎴愬憳涓€寮犲浘">鎴愬憳涓€寮犲浘</a><a href="#m-鑲℃潈涓€寮犲浘">鑲℃潈涓€寮犲浘</a><a href="#m-棰勮鐩戠潱">棰勮鐩戠潱</a></div>
     </section>
 
     
     <section class="head" id="overview-calibration">
-      <h2 style="margin:0 0 10px;">总览校验区</h2>
+      <h2 style="margin:0 0 10px;">鎬昏鏍￠獙鍖?/h2>
       <section style="display:grid;grid-template-columns:repeat(5,minmax(120px,1fr));gap:8px;">
-        <div><label style="font-size:12px;color:#637567;display:block;">行政区划</label><select id="region"><option>海南省</option><option>海口市</option><option>三亚市</option><option>文昌市</option></select></div>
-        <div><label style="font-size:12px;color:#637567;display:block;">开始日期</label><input id="start" type="date" value="2026-01-01" /></div>
-        <div><label style="font-size:12px;color:#637567;display:block;">结束日期</label><input id="end" type="date" value="2026-03-31" /></div>
-        <div><label style="font-size:12px;color:#637567;display:block;">统计口径</label><select id="scope"><option>本级</option><option>区县</option><option>乡镇</option></select></div>
-        <div><label style="font-size:12px;color:#637567;display:block;">执行查询</label><button id="apply" style="width:100%;padding:8px;border-radius:8px;border:1px solid #1f7a4f;background:#1f7a4f;color:#fff;">应用筛选</button></div>
+        <div><label style="font-size:12px;color:#637567;display:block;">琛屾斂鍖哄垝</label><select id="region"><option>娴峰崡鐪?/option><option>娴峰彛甯?/option><option>涓変簹甯?/option><option>鏂囨槍甯?/option></select></div>
+        <div><label style="font-size:12px;color:#637567;display:block;">寮€濮嬫棩鏈?/label><input id="start" type="date" value="2026-01-01" /></div>
+        <div><label style="font-size:12px;color:#637567;display:block;">缁撴潫鏃ユ湡</label><input id="end" type="date" value="2026-03-31" /></div>
+        <div><label style="font-size:12px;color:#637567;display:block;">缁熻鍙ｅ緞</label><select id="scope"><option>鏈骇</option><option>鍖哄幙</option><option>涔￠晣</option></select></div>
+        <div><label style="font-size:12px;color:#637567;display:block;">鎵ц鏌ヨ</label><button id="apply" style="width:100%;padding:8px;border-radius:8px;border:1px solid #1f7a4f;background:#1f7a4f;color:#fff;">搴旂敤绛涢€?/button></div>
       </section>
       <p id="ctx" style="margin:8px 0 0;color:#637567;font-size:12px;"></p>
-      <p style="margin:10px 0 6px;color:#637567;font-size:12px;">风险提示区</p>
+      <p style="margin:10px 0 6px;color:#637567;font-size:12px;">椋庨櫓鎻愮ず鍖?/p>
       <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:10px;">
-        <div style="border:1px solid #d7e3da;border-radius:10px;padding:8px;"><p style="margin:0;color:#637567;font-size:12px;">预警总量</p><strong>426</strong></div>
-        <div style="border:1px solid #d7e3da;border-radius:10px;padding:8px;"><p style="margin:0;color:#637567;font-size:12px;">未处理</p><strong>91</strong></div>
-        <div style="border:1px solid #d7e3da;border-radius:10px;padding:8px;"><p style="margin:0;color:#637567;font-size:12px;">处理中</p><strong>148</strong></div>
-        <div style="border:1px solid #d7e3da;border-radius:10px;padding:8px;"><p style="margin:0;color:#637567;font-size:12px;">已处理</p><strong>187</strong></div>
+        <div style="border:1px solid #d7e3da;border-radius:10px;padding:8px;"><p style="margin:0;color:#637567;font-size:12px;">棰勮鎬婚噺</p><strong>426</strong></div>
+        <div style="border:1px solid #d7e3da;border-radius:10px;padding:8px;"><p style="margin:0;color:#637567;font-size:12px;">鏈鐞?/p><strong>91</strong></div>
+        <div style="border:1px solid #d7e3da;border-radius:10px;padding:8px;"><p style="margin:0;color:#637567;font-size:12px;">澶勭悊涓?/p><strong>148</strong></div>
+        <div style="border:1px solid #d7e3da;border-radius:10px;padding:8px;"><p style="margin:0;color:#637567;font-size:12px;">宸插鐞?/p><strong>187</strong></div>
       </div>
       <div style="margin-top:10px;border:1px dashed #b8cfbf;border-radius:10px;padding:10px;">
-        <h3 style="margin:0 0 6px;">GIS联动区（横切）</h3>
-        <p style="margin:0;color:#637567;font-size:12px;">点击区域后将统一传递到专题页</p>
+        <h3 style="margin:0 0 6px;">GIS鑱斿姩鍖猴紙妯垏锛?/h3>
+        <p style="margin:0;color:#637567;font-size:12px;">鐐瑰嚮鍖哄煙鍚庡皢缁熶竴浼犻€掑埌涓撻椤?/p>
       </div>
     </section>
     
     <section class="grid">
       
-            <section class="card" id="m-财务一张图">
-              <h2>财务一张图</h2>
-              <p class="meta">需求条目数：156</p>
-              <a class="btn" href="finance_f1_f6_wireframe_zh.html">进入详细原型</a>
+            <section class="card" id="m-璐㈠姟涓€寮犲浘">
+              <h2>璐㈠姟涓€寮犲浘</h2>
+              <p class="meta">闇€姹傛潯鐩暟锛?56</p>
+              <a class="btn" href="finance_f1_f6_wireframe_zh.html">杩涘叆璇︾粏鍘熷瀷</a>
             </section>
             
 
-            <section class="card" id="m-资产一张图">
-              <h2>资产一张图</h2>
-              <p class="meta">需求条目数：7</p>
-              <a class="btn" href="asset_one_map_zh.html">进入详细原型</a>
+            <section class="card" id="m-璧勪骇涓€寮犲浘">
+              <h2>璧勪骇涓€寮犲浘</h2>
+              <p class="meta">闇€姹傛潯鐩暟锛?</p>
+              <a class="btn" href="asset_one_map_zh.html">杩涘叆璇︾粏鍘熷瀷</a>
             </section>
             
 
-            <section class="card" id="m-资源一张图">
-              <h2>资源一张图</h2>
-              <p class="meta">需求条目数：6</p>
-              <a class="btn" href="resource_one_map_zh.html">进入详细原型</a>
+            <section class="card" id="m-璧勬簮涓€寮犲浘">
+              <h2>璧勬簮涓€寮犲浘</h2>
+              <p class="meta">闇€姹傛潯鐩暟锛?</p>
+              <a class="btn" href="resource_one_map_zh.html">杩涘叆璇︾粏鍘熷瀷</a>
             </section>
             
 
-            <section class="card" id="m-合同一张图">
-              <h2>合同一张图</h2>
-              <p class="meta">需求条目数：7</p>
-              <a class="btn" href="contract_one_map_zh.html">进入详细原型</a>
+            <section class="card" id="m-鍚堝悓涓€寮犲浘">
+              <h2>鍚堝悓涓€寮犲浘</h2>
+              <p class="meta">闇€姹傛潯鐩暟锛?</p>
+              <a class="btn" href="contract_one_map_zh.html">杩涘叆璇︾粏鍘熷瀷</a>
             </section>
             
 
-            <section class="card" id="m-成员一张图">
-              <h2>成员一张图</h2>
-              <p class="meta">需求条目数：24</p>
-              <a class="btn" href="member_one_map_zh.html">进入详细原型</a>
+            <section class="card" id="m-鎴愬憳涓€寮犲浘">
+              <h2>鎴愬憳涓€寮犲浘</h2>
+              <p class="meta">闇€姹傛潯鐩暟锛?4</p>
+              <a class="btn" href="member_one_map_zh.html">杩涘叆璇︾粏鍘熷瀷</a>
             </section>
             
 
-            <section class="card" id="m-股权一张图">
-              <h2>股权一张图</h2>
-              <p class="meta">需求条目数：19</p>
-              <a class="btn" href="equity_one_map_zh.html">进入详细原型</a>
+            <section class="card" id="m-鑲℃潈涓€寮犲浘">
+              <h2>鑲℃潈涓€寮犲浘</h2>
+              <p class="meta">闇€姹傛潯鐩暟锛?9</p>
+              <a class="btn" href="equity_one_map_zh.html">杩涘叆璇︾粏鍘熷瀷</a>
             </section>
             
 
-            <section class="card" id="m-预警监督">
-              <h2>预警监督</h2>
-              <p class="meta">需求条目数：23</p>
-              <a class="btn" href="warning_supervision_zh.html">进入详细原型</a>
+            <section class="card" id="m-棰勮鐩戠潱">
+              <h2>棰勮鐩戠潱</h2>
+              <p class="meta">闇€姹傛潯鐩暟锛?3</p>
+              <a class="btn" href="warning_supervision_zh.html">杩涘叆璇︾粏鍘熷瀷</a>
             </section>
             
     </section>
 
-    <p class="note">数据源：data/requirements/nongjing_map_requirements.json（用于原型功能归并）</p>
+    <p class="note">鏁版嵁婧愶細data/requirements/nongjing-map/nongjing_map_requirements.json锛堢敤浜庡師鍨嬪姛鑳藉綊骞讹級</p>
   </div>
 <!-- overview-sync -->
 
@@ -130,7 +130,7 @@
   if(q.get('scope')) scope.value=q.get('scope');
   function sync(){
     const p=new URLSearchParams({region:region.value,start:start.value,end:end.value,scope:scope.value}).toString();
-    ctx.textContent='当前筛选' + ': ' + region.value + ' | ' + start.value + ' '至' + ' ' + end.value + ' | ' + scope.value;
+    ctx.textContent='褰撳墠绛涢€? + ': ' + region.value + ' | ' + start.value + ' '鑷? + ' ' + end.value + ' | ' + scope.value;
     links.forEach(a=>a.href=a.getAttribute('href').split('?')[0]+'?'+p);
     history.replaceState(null,'','?'+p);
   }
@@ -141,3 +141,4 @@
 
 </body>
 </html>
+

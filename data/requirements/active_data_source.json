@@ -1,5 +1,6 @@
 ﻿{
-  "data_source": "data\\requirements\\nongjing_map_requirements.json",
+  "data_source": "data\\requirements\\nongjing-map\\nongjing_map_requirements.json",
   "module_name": "农经一张图",
   "description": "Thread default data source (Nongjing One-Map only)"
 }
+

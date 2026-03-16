@@ -1,4 +1,4 @@
-package com.agriculture.villagefinance.common.pojo;
+﻿package com.agriculture.villagefinance.common.pojo;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -15,5 +15,9 @@ public class CommonResult<T> {
 
     public static <T> CommonResult<T> success(T data) {
         return new CommonResult<>(0, "success", data);
+    }
+
+    public static <T> CommonResult<T> error(Integer code, String message) {
+        return new CommonResult<>(code, message, null);
     }
 }
