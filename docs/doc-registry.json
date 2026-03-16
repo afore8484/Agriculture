@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "updated_at": "2026-03-16T00:00:00+08:00",
+  "modules": [
+    {
+      "module_code": "nongjing-map",
+      "module_name": "农经一张图",
+      "status": "active",
+      "manifest": "docs/modules/nongjing-map/module.manifest.json",
+      "baseline": {
+        "requirements": "docs/nongjing-map/农经一张图-需求梳理.md",
+        "api": "docs/nongjing-map/农经一张图标准接口文档.md",
+        "data_model": "docs/nongjing-map/农经一张图数据结构文档.md"
+      },
+      "active_requirement_source": "data/requirements/nongjing-map/nongjing_map_requirements.json",
+      "deprecated": [
+        "docs/archive/nongjing-map/农经一张图-接口文档.md",
+        "docs/archive/nongjing-map/农经一张图数据结构文档.md",
+        "docs/archive/nongjing-map/农经一张图数据结构文档-历史备份.md",
+        "docs/archive/nongjing-map/农经一张图模块需求整理.md"
+      ]
+    }
+  ]
+}

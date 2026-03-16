@@ -1,0 +1,7 @@
+{
+  "status": "deprecated",
+  "module_code": "nongjing-map",
+  "replacement": "docs/nongjing-map/农经一张图-需求梳理.md",
+  "reason": "旧整理稿，不再作为验收基线",
+  "updated_at": "2026-03-16T00:00:00+08:00"
+}

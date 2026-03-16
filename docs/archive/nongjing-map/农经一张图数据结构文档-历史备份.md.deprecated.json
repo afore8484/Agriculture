@@ -1,0 +1,7 @@
+{
+  "status": "deprecated",
+  "module_code": "nongjing-map",
+  "replacement": "docs/nongjing-map/农经一张图数据结构文档.md",
+  "reason": "历史备份，不再作为开发基线",
+  "updated_at": "2026-03-16T00:00:00+08:00"
+}

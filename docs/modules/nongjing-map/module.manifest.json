@@ -1,0 +1,50 @@
+{
+  "module_code": "nongjing-map",
+  "module_name": "农经一张图",
+  "status": "active",
+  "scope": "只处理农经一张图，GIS 作为横切能力，不单独拆成主题模块。",
+  "baselines": {
+    "requirements": {
+      "path": "docs/nongjing-map/农经一张图-需求梳理.md",
+      "purpose": "需求验收基准"
+    },
+    "api": {
+      "path": "docs/nongjing-map/农经一张图标准接口文档.md",
+      "purpose": "后端服务接口开发基准"
+    },
+    "data_model": {
+      "path": "docs/nongjing-map/农经一张图数据结构文档.md",
+      "purpose": "后端服务数据结构开发基准"
+    }
+  },
+  "codebases": {
+    "frontend": "modules/nongjing-map/frontend",
+    "backend": "modules/nongjing-map/backend"
+  },
+  "source_of_truth": {
+    "requirements_json": "data/requirements/nongjing-map/nongjing_map_requirements.json",
+    "active_baselines": "data/requirements/nongjing-map/active_baselines.json"
+  },
+  "deprecated_files": [
+    {
+      "path": "docs/archive/nongjing-map/农经一张图-接口文档.md",
+      "replacement": "docs/nongjing-map/农经一张图标准接口文档.md",
+      "reason": "旧副本，接口基线已统一收口到 docs/nongjing-map"
+    },
+    {
+      "path": "docs/archive/nongjing-map/农经一张图数据结构文档.md",
+      "replacement": "docs/nongjing-map/农经一张图数据结构文档.md",
+      "reason": "旧副本，数据结构基线已统一收口到 docs/nongjing-map"
+    },
+    {
+      "path": "docs/archive/nongjing-map/农经一张图数据结构文档-历史备份.md",
+      "replacement": "docs/nongjing-map/农经一张图数据结构文档.md",
+      "reason": "历史备份，不再作为开发基线"
+    },
+    {
+      "path": "docs/archive/nongjing-map/农经一张图模块需求整理.md",
+      "replacement": "docs/nongjing-map/农经一张图-需求梳理.md",
+      "reason": "旧整理稿，不再作为验收基线"
+    }
+  ]
+}
