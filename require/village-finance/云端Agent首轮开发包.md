@@ -27,8 +27,8 @@
 ## 2. 依据文档
 
 ### 2.1 主依据
-1. `docs/village-finance/data/数据结构文档.md`
-2. `docs/village-finance/interface/接口文档.md`
+1. `docs/data/村委财务事务管理系统数据结构文档..md`
+2. `docs/interface/村委财务事务管理系统-接口文档.md`
 
 ### 2.2 校验依据
 1. `require/village-finance/村委财务事务管理系统-需求梳理.md`
@@ -78,3 +78,4 @@
 6. 对账结果可生成并查询
 7. 月结与反结账可执行
 8. 结果能回到需求梳理文档做覆盖核验
+

@@ -10,8 +10,8 @@
 ## 当前约束
 
 1. 后端实现必须以以下文档为主：
-   - `docs/village-finance/data/数据结构文档.md`
-   - `docs/village-finance/interface/接口文档.md`
+   - `docs/data/村委财务事务管理系统数据结构文档..md`
+   - `docs/interface/村委财务事务管理系统-接口文档.md`
 2. 开发结果必须以以下文档校验：
    - `require/village-finance/村委财务事务管理系统-需求梳理.md`
 3. 前端原型工程只作为参考：
@@ -59,3 +59,4 @@ modules/village-finance/backend/
   .env.example
   README.md
 ```
+

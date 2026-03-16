@@ -30,8 +30,8 @@
 ## 3. 正式开发依据
 
 ### 3.1 主依据
-1. `docs/village-finance/data/数据结构文档.md`
-2. `docs/village-finance/interface/接口文档.md`
+1. `docs/data/村委财务事务管理系统数据结构文档..md`
+2. `docs/interface/村委财务事务管理系统-接口文档.md`
 
 ### 3.2 验收依据
 1. `require/village-finance/村委财务事务管理系统-需求梳理.md`
@@ -132,4 +132,5 @@
    - 已完成排查
    - 当前影响范围
    - 下一步处理计划
+
 
