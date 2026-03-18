@@ -1,4 +1,4 @@
-﻿package com.agriculture.villagefinance.module.finance.controller.vo;
+package com.agriculture.villagefinance.module.finance.controller.vo;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
@@ -21,6 +21,8 @@ public class VoucherCreateReqVO {
     private LocalDate voucherDate;
 
     private String voucherType;
+
+    private Long bizId;
 
     private String summary;
 

@@ -1,4 +1,4 @@
-﻿package com.agriculture.villagefinance.module.finance.dal.dataobject;
+package com.agriculture.villagefinance.module.finance.dal.dataobject;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;

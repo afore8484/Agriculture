@@ -1,4 +1,4 @@
-﻿package com.agriculture.villagefinance.common.pojo;
+package com.agriculture.villagefinance.common.pojo;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

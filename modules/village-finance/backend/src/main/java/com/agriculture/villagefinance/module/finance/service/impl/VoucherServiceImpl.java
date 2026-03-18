@@ -1,4 +1,4 @@
-﻿package com.agriculture.villagefinance.module.finance.service.impl;
+package com.agriculture.villagefinance.module.finance.service.impl;
 
 import com.agriculture.villagefinance.module.finance.controller.vo.VoucherActionRespVO;
 import com.agriculture.villagefinance.module.finance.controller.vo.VoucherAttachmentRespVO;
@@ -12,7 +12,9 @@ import com.agriculture.villagefinance.module.finance.controller.vo.VoucherListRe
 import com.agriculture.villagefinance.module.finance.controller.vo.VoucherRecycleRespVO;
 import com.agriculture.villagefinance.module.finance.controller.vo.VoucherUnauditReqVO;
 import com.agriculture.villagefinance.module.finance.controller.vo.VoucherUpdateReqVO;
+import com.agriculture.villagefinance.module.finance.constant.FinanceVoucherType;
 import com.agriculture.villagefinance.module.finance.dal.dataobject.FinBookDO;
+import com.agriculture.villagefinance.module.finance.dal.dataobject.FinInternalTransferDO;
 import com.agriculture.villagefinance.module.finance.dal.dataobject.FinPeriodDO;
 import com.agriculture.villagefinance.module.finance.dal.dataobject.FinSubjectDO;
 import com.agriculture.villagefinance.module.finance.dal.dataobject.FinVoucherAttachmentDO;
@@ -23,6 +25,7 @@ import com.agriculture.villagefinance.module.finance.dal.dataobject.FinVoucherOp
 import com.agriculture.villagefinance.module.finance.dal.dataobject.FinVoucherRecycleDO;
 import com.agriculture.villagefinance.module.finance.dal.dataobject.FinVoucherRecycleEntryDO;
 import com.agriculture.villagefinance.module.finance.dal.mysql.FinBookMapper;
+import com.agriculture.villagefinance.module.finance.dal.mysql.FinInternalTransferMapper;
 import com.agriculture.villagefinance.module.finance.dal.mysql.FinPeriodMapper;
 import com.agriculture.villagefinance.module.finance.dal.mysql.FinSubjectMapper;
 import com.agriculture.villagefinance.module.finance.dal.mysql.FinVoucherAttachmentMapper;
@@ -58,8 +61,11 @@ public class VoucherServiceImpl implements VoucherService {
 
     private static final String STATUS_DRAFT = "DRAFT";
     private static final String STATUS_AUDITED = "AUDITED";
+    private static final String PERIOD_CLOSED = "CLOSED";
+    private static final String TRANSFER_STATUS_SUCCESS = "SUCCESS";
 
     private final FinBookMapper finBookMapper;
+    private final FinInternalTransferMapper finInternalTransferMapper;
     private final FinPeriodMapper finPeriodMapper;
     private final FinSubjectMapper finSubjectMapper;
     private final FinVoucherMapper finVoucherMapper;
@@ -114,12 +120,16 @@ public class VoucherServiceImpl implements VoucherService {
     public VoucherActionRespVO createVoucher(VoucherCreateReqVO reqVO) {
         FinBookDO book = requireBook(reqVO.getLedgerId());
         FinPeriodDO period = requirePeriod(reqVO.getPeriodId(), reqVO.getLedgerId());
+        ensurePeriodOpen(period);
         validateEntries(reqVO.getEntries());
+        String voucherType = FinanceVoucherType.normalize(reqVO.getVoucherType());
+        validateVoucherSource(voucherType, reqVO.getBizId());
         LocalDateTime now = LocalDateTime.now();
         FinVoucherDO voucher = new FinVoucherDO();
         voucher.setVoucherNo(generateVoucherNo(book, period, reqVO.getVoucherDate()));
         voucher.setVoucherDate(reqVO.getVoucherDate());
-        voucher.setVoucherType(StringUtils.hasText(reqVO.getVoucherType()) ? reqVO.getVoucherType() : "MANUAL");
+        voucher.setVoucherType(voucherType);
+        voucher.setBizId(reqVO.getBizId());
         voucher.setBookId(reqVO.getLedgerId());
         voucher.setPeriodId(reqVO.getPeriodId());
         voucher.setAttachmentCount(reqVO.getAttachmentIds() == null ? 0 : reqVO.getAttachmentIds().size());
@@ -131,7 +141,7 @@ public class VoucherServiceImpl implements VoucherService {
         voucher.setRemark(reqVO.getRemark());
         finVoucherMapper.insert(voucher);
         saveEntries(voucher.getId(), reqVO.getSummary(), reqVO.getEntries());
-        writeOperationLog(voucher.getId(), "CREATE", reqVO.getCreatedBy(), null, voucherSnapshotJson(voucher.getId()), "新增凭证");
+        writeOperationLog(voucher.getId(), "CREATE", reqVO.getCreatedBy(), null, voucherSnapshotJson(voucher.getId()), "鏂板鍑瘉");
         return actionResp(voucher);
     }
 
@@ -139,13 +149,20 @@ public class VoucherServiceImpl implements VoucherService {
     @Transactional(rollbackFor = Exception.class)
     public VoucherActionRespVO updateVoucher(Long voucherId, VoucherUpdateReqVO reqVO) {
         FinVoucherDO voucher = requireVoucher(voucherId);
-        ensureDraft(voucher, "仅未审核凭证允许修改");
+        ensurePeriodOpen(requirePeriod(voucher.getPeriodId(), voucher.getBookId()));
+        ensureTransferVoucherLinkConsistency(voucher);
+        ensureDraft(voucher, "浠呮湭瀹℃牳鍑瘉鍏佽淇敼");
         validateEntries(reqVO.getEntries());
         String beforeJson = voucherSnapshotJson(voucherId);
         voucher.setVoucherDate(reqVO.getVoucherDate() != null ? reqVO.getVoucherDate() : voucher.getVoucherDate());
         if (StringUtils.hasText(reqVO.getVoucherType())) {
-            voucher.setVoucherType(reqVO.getVoucherType());
+            String newType = FinanceVoucherType.normalize(reqVO.getVoucherType());
+            if (!Objects.equals(newType, voucher.getVoucherType()) && voucher.getBizId() != null) {
+                throw new IllegalStateException("已绑定业务来源的凭证不允许修改来源类型");
+            }
+            voucher.setVoucherType(newType);
         }
+        validateVoucherSource(voucher.getVoucherType(), voucher.getBizId());
         voucher.setAttachmentCount(reqVO.getAttachmentIds() == null ? voucher.getAttachmentCount() : reqVO.getAttachmentIds().size());
         voucher.setTotalDebit(sumAmount(reqVO.getEntries(), true));
         voucher.setTotalCredit(sumAmount(reqVO.getEntries(), false));
@@ -153,7 +170,7 @@ public class VoucherServiceImpl implements VoucherService {
         finVoucherMapper.updateById(voucher);
         finVoucherEntryMapper.delete(new LambdaQueryWrapper<FinVoucherEntryDO>().eq(FinVoucherEntryDO::getVoucherId, voucherId));
         saveEntries(voucherId, reqVO.getSummary(), reqVO.getEntries());
-        writeOperationLog(voucherId, "UPDATE", reqVO.getOperatorId(), beforeJson, voucherSnapshotJson(voucherId), "修改凭证");
+        writeOperationLog(voucherId, "UPDATE", reqVO.getOperatorId(), beforeJson, voucherSnapshotJson(voucherId), "淇敼鍑瘉");
         return actionResp(voucher);
     }
 
@@ -161,13 +178,15 @@ public class VoucherServiceImpl implements VoucherService {
     @Transactional(rollbackFor = Exception.class)
     public VoucherActionRespVO auditVoucher(Long voucherId, VoucherAuditReqVO reqVO) {
         FinVoucherDO voucher = requireVoucher(voucherId);
-        ensureDraft(voucher, "仅未审核凭证允许审核");
+        ensurePeriodOpen(requirePeriod(voucher.getPeriodId(), voucher.getBookId()));
+        ensureTransferVoucherLinkConsistency(voucher);
+        ensureDraft(voucher, "浠呮湭瀹℃牳鍑瘉鍏佽瀹℃牳");
         voucher.setStatus(STATUS_AUDITED);
         voucher.setAuditedBy(reqVO.getOperatorId());
         voucher.setAuditedAt(LocalDateTime.now());
         finVoucherMapper.updateById(voucher);
         writeAuditLog(voucherId, "AUDIT", reqVO.getOperatorId(), reqVO.getAuditRemark());
-        writeOperationLog(voucherId, "AUDIT", reqVO.getOperatorId(), null, voucherSnapshotJson(voucherId), "审核凭证");
+        writeOperationLog(voucherId, "AUDIT", reqVO.getOperatorId(), null, voucherSnapshotJson(voucherId), "瀹℃牳鍑瘉");
         return actionResp(voucher);
     }
 
@@ -175,6 +194,8 @@ public class VoucherServiceImpl implements VoucherService {
     @Transactional(rollbackFor = Exception.class)
     public VoucherActionRespVO unauditVoucher(Long voucherId, VoucherUnauditReqVO reqVO) {
         FinVoucherDO voucher = requireVoucher(voucherId);
+        ensurePeriodOpen(requirePeriod(voucher.getPeriodId(), voucher.getBookId()));
+        ensureTransferVoucherLinkConsistency(voucher);
         if (!STATUS_AUDITED.equalsIgnoreCase(voucher.getStatus())) {
             throw new IllegalStateException("仅已审核凭证允许反审核");
         }
@@ -191,7 +212,8 @@ public class VoucherServiceImpl implements VoucherService {
     @Transactional(rollbackFor = Exception.class)
     public VoucherDeleteRespVO deleteVoucher(Long voucherId, String reason, Long operatorId) {
         FinVoucherDO voucher = requireVoucher(voucherId);
-        ensureDraft(voucher, "仅未审核凭证允许删除");
+        ensureDraft(voucher, "浠呮湭瀹℃牳鍑瘉鍏佽鍒犻櫎");
+        rejectTransferVoucherDelete(voucher);
         List<FinVoucherEntryDO> entries = finVoucherEntryMapper.selectList(new LambdaQueryWrapper<FinVoucherEntryDO>()
                 .eq(FinVoucherEntryDO::getVoucherId, voucherId)
                 .orderByAsc(FinVoucherEntryDO::getLineNo));
@@ -200,6 +222,7 @@ public class VoucherServiceImpl implements VoucherService {
         recycle.setVoucherNo(voucher.getVoucherNo());
         recycle.setVoucherDate(voucher.getVoucherDate());
         recycle.setVoucherType(voucher.getVoucherType());
+        recycle.setBizId(voucher.getBizId());
         recycle.setBookId(voucher.getBookId());
         recycle.setPeriodId(voucher.getPeriodId());
         recycle.setTotalDebit(voucher.getTotalDebit());
@@ -224,7 +247,7 @@ public class VoucherServiceImpl implements VoucherService {
             recycleEntry.setRemark(entry.getRemark());
             finVoucherRecycleEntryMapper.insert(recycleEntry);
         }
-        writeOperationLog(voucherId, "DELETE", defaultOperator(operatorId), voucherSnapshotJson(voucherId), null, "删除并进入回收站");
+        writeOperationLog(voucherId, "DELETE", defaultOperator(operatorId), voucherSnapshotJson(voucherId), null, "鍒犻櫎骞惰繘鍏ュ洖鏀剁珯");
         finVoucherEntryMapper.delete(new LambdaQueryWrapper<FinVoucherEntryDO>().eq(FinVoucherEntryDO::getVoucherId, voucherId));
         finVoucherAttachmentMapper.delete(new LambdaQueryWrapper<FinVoucherAttachmentDO>().eq(FinVoucherAttachmentDO::getVoucherId, voucherId));
         finVoucherMapper.deleteById(voucherId);
@@ -259,6 +282,7 @@ public class VoucherServiceImpl implements VoucherService {
         voucher.setVoucherNo(recycle.getVoucherNo());
         voucher.setVoucherDate(recycle.getVoucherDate());
         voucher.setVoucherType(recycle.getVoucherType());
+        voucher.setBizId(recycle.getBizId());
         voucher.setBookId(recycle.getBookId());
         voucher.setPeriodId(recycle.getPeriodId());
         voucher.setAttachmentCount(0);
@@ -327,6 +351,41 @@ public class VoucherServiceImpl implements VoucherService {
         return period;
     }
 
+    private void ensurePeriodOpen(FinPeriodDO period) {
+        if (PERIOD_CLOSED.equalsIgnoreCase(period.getCloseStatus())) {
+            throw new IllegalStateException("浼氳鏈熼棿宸茬粨璐︼紝绂佹鍐欏叆");
+        }
+    }
+
+    private void ensureTransferVoucherLinkConsistency(FinVoucherDO voucher) {
+        if (!FinanceVoucherType.TRANSFER.equalsIgnoreCase(voucher.getVoucherType())) {
+            return;
+        }
+        if (voucher.getBizId() == null) {
+            throw new IllegalStateException("转账凭证缺少业务来源ID");
+        }
+        FinInternalTransferDO transfer = finInternalTransferMapper.selectById(voucher.getBizId());
+        if (transfer == null
+                || !Objects.equals(transfer.getVoucherId(), voucher.getId())
+                || !Objects.equals(transfer.getBookId(), voucher.getBookId())
+                || !TRANSFER_STATUS_SUCCESS.equalsIgnoreCase(transfer.getStatus())) {
+            throw new IllegalStateException("转账凭证关联状态异常");
+        }
+        long voucherCount = finVoucherMapper.selectCount(new LambdaQueryWrapper<FinVoucherDO>()
+                .eq(FinVoucherDO::getVoucherType, FinanceVoucherType.TRANSFER)
+                .eq(FinVoucherDO::getBizId, voucher.getBizId())
+                .eq(FinVoucherDO::getBookId, voucher.getBookId()));
+        if (voucherCount != 1) {
+            throw new IllegalStateException("转账凭证来源映射异常");
+        }
+    }
+
+    private void rejectTransferVoucherDelete(FinVoucherDO voucher) {
+        if (FinanceVoucherType.TRANSFER.equalsIgnoreCase(voucher.getVoucherType())) {
+            throw new IllegalStateException("内部转账凭证禁止删除");
+        }
+    }
+
     private FinVoucherDO requireVoucher(Long voucherId) {
         FinVoucherDO voucher = finVoucherMapper.selectById(voucherId);
         if (voucher == null) {
@@ -342,7 +401,7 @@ public class VoucherServiceImpl implements VoucherService {
                 .orderByDesc(FinVoucherRecycleDO::getId)
                 .last("limit 1"));
         if (recycle == null) {
-            throw new IllegalArgumentException("回收站凭证不存在");
+            throw new IllegalArgumentException("鍥炴敹绔欏嚟璇佷笉瀛樺湪");
         }
         return recycle;
     }
@@ -353,22 +412,33 @@ public class VoucherServiceImpl implements VoucherService {
         }
     }
 
+    private void validateVoucherSource(String voucherType, Long bizId) {
+        String normalizedType = FinanceVoucherType.normalize(voucherType);
+        FinanceVoucherType.validateAllowed(normalizedType);
+        if (FinanceVoucherType.isManagedType(normalizedType) && bizId == null) {
+            throw new IllegalArgumentException("业务凭证必须提供来源ID");
+        }
+        if (!FinanceVoucherType.isManagedType(normalizedType) && bizId != null) {
+            throw new IllegalArgumentException("手工凭证不允许绑定业务来源ID");
+        }
+    }
+
     private void validateEntries(List<VoucherEntryReqVO> entries) {
         if (entries == null || entries.isEmpty()) {
-            throw new IllegalArgumentException("凭证明细不能为空");
+            throw new IllegalArgumentException("鍑瘉鏄庣粏涓嶈兘涓虹┖");
         }
         BigDecimal debit = sumAmount(entries, true);
         BigDecimal credit = sumAmount(entries, false);
         if (debit.compareTo(BigDecimal.ZERO) <= 0 || credit.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("借贷金额必须大于0");
+            throw new IllegalArgumentException("鍊熻捶閲戦蹇呴』澶т簬0");
         }
         if (debit.compareTo(credit) != 0) {
-            throw new IllegalArgumentException("借贷金额必须平衡");
+            throw new IllegalArgumentException("鍊熻捶閲戦蹇呴』骞宠　");
         }
         Set<Long> subjectIds = entries.stream().map(VoucherEntryReqVO::getSubjectId).collect(Collectors.toSet());
         List<FinSubjectDO> subjects = finSubjectMapper.selectBatchIds(subjectIds);
         if (subjects.size() != subjectIds.size()) {
-            throw new IllegalArgumentException("存在无效会计科目");
+            throw new IllegalArgumentException("瀛樺湪鏃犳晥浼氳绉戠洰");
         }
     }
 
@@ -405,6 +475,7 @@ public class VoucherServiceImpl implements VoucherService {
         vo.setVoucherNo(voucher.getVoucherNo());
         vo.setVoucherDate(voucher.getVoucherDate());
         vo.setVoucherType(voucher.getVoucherType());
+        vo.setBizId(voucher.getBizId());
         vo.setLedgerId(voucher.getBookId());
         vo.setPeriodId(voucher.getPeriodId());
         vo.setAttachmentCount(voucher.getAttachmentCount());
@@ -454,6 +525,8 @@ public class VoucherServiceImpl implements VoucherService {
         vo.setVoucherId(voucher.getId());
         vo.setVoucherNo(voucher.getVoucherNo());
         vo.setVoucherDate(voucher.getVoucherDate());
+        vo.setVoucherType(voucher.getVoucherType());
+        vo.setBizId(voucher.getBizId());
         vo.setTotalAmount(voucher.getTotalDebit());
         vo.setAuditStatus(voucher.getStatus());
         return vo;
