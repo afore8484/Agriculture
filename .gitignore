@@ -9,3 +9,4 @@ temp_*.json
 
 output/local_server/*.pid
 output/local_server/*.log
+.m2/

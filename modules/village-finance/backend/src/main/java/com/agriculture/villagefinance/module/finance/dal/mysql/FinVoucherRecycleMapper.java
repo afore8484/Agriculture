@@ -1,4 +1,4 @@
-﻿package com.agriculture.villagefinance.module.finance.dal.mysql;
+package com.agriculture.villagefinance.module.finance.dal.mysql;
 
 import com.agriculture.villagefinance.module.finance.dal.dataobject.FinVoucherRecycleDO;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;

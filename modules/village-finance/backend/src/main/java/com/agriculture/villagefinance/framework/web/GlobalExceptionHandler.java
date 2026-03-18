@@ -1,4 +1,4 @@
-﻿package com.agriculture.villagefinance.framework.web;
+package com.agriculture.villagefinance.framework.web;
 
 import com.agriculture.villagefinance.common.pojo.CommonResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
