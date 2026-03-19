@@ -1,4 +1,4 @@
-﻿package com.agriculture.villagefinance.module.finance.controller.vo;
+package com.agriculture.villagefinance.module.finance.controller.vo;
 
 import lombok.Data;
 
@@ -13,6 +13,7 @@ public class VoucherDetailRespVO {
     private String voucherNo;
     private LocalDate voucherDate;
     private String voucherType;
+    private Long bizId;
     private Long ledgerId;
     private Long periodId;
     private Integer attachmentCount;

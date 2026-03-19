@@ -1,4 +1,4 @@
-﻿package com.agriculture.villagefinance.module.finance.controller.vo;
+package com.agriculture.villagefinance.module.finance.controller.vo;
 
 import lombok.Data;
 

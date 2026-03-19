@@ -1,4 +1,4 @@
-﻿package com.agriculture.villagefinance.module.finance.controller;
+package com.agriculture.villagefinance.module.finance.controller;
 
 import com.agriculture.villagefinance.common.pojo.CommonResult;
 import com.agriculture.villagefinance.module.finance.controller.vo.VoucherActionRespVO;

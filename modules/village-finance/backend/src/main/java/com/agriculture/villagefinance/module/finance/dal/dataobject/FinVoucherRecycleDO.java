@@ -1,4 +1,4 @@
-﻿package com.agriculture.villagefinance.module.finance.dal.dataobject;
+package com.agriculture.villagefinance.module.finance.dal.dataobject;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -19,6 +19,7 @@ public class FinVoucherRecycleDO {
     private String voucherNo;
     private LocalDate voucherDate;
     private String voucherType;
+    private Long bizId;
     private Long bookId;
     private Long periodId;
     private BigDecimal totalDebit;
