@@ -27,14 +27,15 @@
 
 ## 默认命令
 
-1. 依赖准备：`mvn dependency:go-offline`
-2. 测试：`mvn test`
-3. 构建：`mvn clean package -DskipTests`
-4. 启动：`mvn spring-boot:run -Dspring-boot.run.profiles=dev`
+1. 进入 RuoYi 根工程：`cd ruoyi-vue-pro`
+2. 依赖准备（可选）：`mvn dependency:go-offline`
+3. 最小编译验证（推荐）：`mvn -q -pl ../modules/village-finance/backend -am -DskipTests test-compile`
+4. 最小测试验证（推荐）：`mvn -q -pl ../modules/village-finance/backend "-Dtest=FinanceFoundationQueryServiceImplTest,FinanceFundsServiceImplTest,VoucherServiceImplTest" test`
+5. 全量测试：`mvn -pl ../modules/village-finance/backend test`
 
 ## 当前状态
 
-1. 已初始化 Spring Boot + Maven 后端骨架
+1. 已完成 RuoYi-Vue-Pro（Yudao）真实工程挂载，`backend` 子模块继承 `cn.iocoder.boot:yudao` 父工程
 2. 已接入 PostgreSQL + Flyway + MyBatis-Plus
 3. 已落地首批基础查询接口：
    - `GET /api/village-finance/ledgers`
@@ -89,6 +90,11 @@
    - 新增多栏账最小查询（multi-ledger）
    - 新增报表中心最小链路：进度查询（progress）→ 导出（export）→ 打印（print）
    - 全部继续复用 S2-R5 冻结口径（仅 `AUDITED` 入账）
+15. RuoYi 框架对齐与 Java 兼容性验证（2026-03-20）：
+   - 已导入真实 `ruoyi-vue-pro` 基础工程并完成模块挂载：`../modules/village-finance/backend`
+   - `modules/village-finance/backend/pom.xml` 已切换为父工程继承模式（`relativePath=../../../ruoyi-vue-pro/pom.xml`）
+   - `mvn -q -pl ../modules/village-finance/backend -am -DskipTests test-compile` 通过
+   - `FinanceFoundationQueryServiceImplTest`、`FinanceFundsServiceImplTest`、`VoucherServiceImplTest` 最小链路可运行
 
 ## 首轮闭环验收收口（F1）
 
@@ -631,4 +637,154 @@ modules/village-finance/backend/
 1. 未实现合同收付款。
 2. 未实现合同与资金/凭证联动。
 3. 未实现合同审批流联动与复杂附件体系（预览、版本、权限）。
+
+## S3-P2-B 合同管理 R1-B（合同收付款 + 合同到资金/凭证联动）
+
+### 本轮范围
+1. 合同收款：新增 + 查询，最小校验（合同存在、状态允许、金额合法、期间可写）。
+2. 合同付款：新增 + 查询，最小校验（合同存在、状态允许、金额合法、期间可写）。
+3. 财务联动：收付款成功后，关联资金日记账与凭证，业务表回写 `journal_id`、`voucher_id`。
+4. 删除保护增强：合同存在收付款记录（含已关联凭证）时，禁止删除。
+
+### 数据与表结构
+1. 新增 Flyway：`V8__contract_payment_r1b.sql`。
+2. 新增表：
+   - `fin_contract_payment`
+3. 关键字段：
+   - `payment_type`（`RECEIPT`/`PAYMENT`）
+   - `bank_account_id` / `cash_account_id`
+   - `journal_id`
+   - `voucher_id`
+4. 新增索引：
+   - `idx_fin_contract_payment_contract`
+   - `idx_fin_contract_payment_type_date`
+   - `idx_fin_contract_payment_voucher`
+   - `idx_fin_contract_payment_journal`
+
+### 接口落地
+控制器：`ContractController`，继续兼容：
+- `/api/village-finance/contracts`
+- `/api/contract`
+
+新增接口：
+1. `POST /contracts/receipt`：新增合同收款。
+2. `POST /contracts/pay`：新增合同付款。
+3. `GET /contracts/payment/list`：查询合同收付款记录（可按 `paymentType` 过滤）。
+4. `GET /contracts/{contractId}/payments`：兼容接口文档中的路径查询。
+
+### 合同与资金/凭证联动规则
+1. 账户选择：`bankAccountId` 与 `cashAccountId` 必须且仅能传一个。
+2. 资金联动：
+   - 收款：生成 `INCOME` 日记账；
+   - 付款：生成 `EXPENSE` 日记账；
+   - 复用 `FinanceFundsService` 既有能力更新账户余额与期间写入校验。
+3. 凭证联动：
+   - 收款使用 `voucherType=CONTRACT_RECEIPT`，付款使用 `voucherType=CONTRACT_PAYMENT`；
+   - 统一调用 `BizVoucherLinkService#createVoucher`，`bizId=contractPaymentId`；
+   - 收付款记录回写 `voucher_id`，日记账回写 `biz_type/biz_id`。
+4. 分录最小规则：
+   - 收款：借 资金账户科目、贷 对方科目；
+   - 付款：借 对方科目、贷 资金账户科目；
+   - 金额均为收付款金额，借贷平衡由凭证服务统一校验。
+
+### 事务与边界
+1. 同一事务内执行：`fin_contract_payment` 入库 -> 日记账生成 -> 凭证生成 -> `journal_id/voucher_id` 回写。
+2. 若任一环节失败（含凭证生成失败），整笔合同收付款回滚。
+3. 会计期间 `CLOSED` 时，合同收付款写入被拦截。
+
+### 最小测试（S3-P2-B）
+`FinanceContractServiceImplTest` 新增/覆盖：
+1. `shouldCreateContractReceipt`
+2. `shouldCreateContractPayment`
+3. `shouldLinkContractReceiptVoucher`
+4. `shouldLinkContractPaymentVoucher`
+5. `shouldRejectContractWriteWhenPeriodClosed`
+6. `shouldRejectDeleteContractWhenVoucherLinked`
+
+### 验证结果
+1. `mvn -q -DskipTests test-compile`：通过。
+2. `mvn -q "-Dtest=FinanceContractServiceImplTest" test`：通过（13/13）。
+3. `mvn -q "-Dtest=FinanceContractServiceImplTest,FinanceFundsServiceImplTest,VoucherServiceImplTest,BizVoucherLinkServiceImplTest" test`：通过。
+4. 环境仍有 `Access is denied.` 噪声输出，不影响命令退出码与结果判定。
+
+### 未做事项
+1. 未实现合同审批联动。
+2. 未扩展复杂合同状态机与复杂附件能力。
+3. 未扩展银农直联与二阶段其他模块。
+
+## S3-P3-A 在线审批 R1-A（最小流程包）
+
+### 本轮范围
+1. 流程定义最小能力：新增、修改、查询、启用、停用。
+2. 流程实例最小能力：发起、详情、列表。
+3. 审批任务最小能力：待办、已办、处理（通过/驳回）。
+4. 审批历史最小能力：节点历史、操作留痕查询。
+5. 本轮不接合同/支付/财务状态联动，不改变现有业务状态语义。
+
+### 数据与表结构
+1. 新增 Flyway：`V9__approval_r1a_minimal.sql`。
+2. 新增表：
+   - `fin_approve_process`
+   - `fin_approve_instance`
+   - `fin_approve_task`
+   - `fin_approve_history`
+3. 关键口径：
+   - 流程实例采用最小单节点流转；
+   - 任务处理后直接收敛为 `APPROVED` 或 `REJECTED`。
+
+### 接口落地
+控制器：`ApprovalController`，兼容：
+- `/api/village-finance/approvals`
+- `/api/approval`
+
+最小接口：
+1. 流程定义：
+   - `POST /process-definitions`
+   - `PUT /process-definitions/{processId}`
+   - `GET /process-definitions`
+   - `POST /process-definitions/{processId}/enable`
+   - `POST /process-definitions/{processId}/disable`
+2. 流程实例：
+   - `POST /instances/start`
+   - `GET /instances/{instanceId}`
+   - `GET /instances`
+3. 任务：
+   - `GET /tasks/todo`
+   - `GET /tasks/done`
+   - `POST /tasks/{taskId}/actions`
+4. 历史：
+   - `GET /instances/{instanceId}/history`
+
+### 审批状态与流转
+1. 流程定义启停：`enable_flag` 控制可发起性。
+2. 实例状态：
+   - 发起后：`DRAFT -> PROCESSING`
+   - 处理通过：`PROCESSING -> APPROVED`
+   - 处理驳回：`PROCESSING -> REJECTED`
+3. 任务状态：
+   - 创建：`PENDING`
+   - 处理后：`DONE`
+4. 历史留痕：
+   - 发起写入 `SUBMIT` 历史；
+   - 审批动作写入 `APPROVE` 或 `REJECT` 历史。
+
+### 最小测试（S3-P3-A）
+`FinanceApprovalServiceImplTest`：
+1. `shouldCreateProcessDefinition`
+2. `shouldStartProcessInstance`
+3. `shouldQueryTodoTasks`
+4. `shouldApproveTask`
+5. `shouldRejectTask`
+6. `shouldQueryProcessHistory`
+
+### 验证结果
+1. `mvn -q -DskipTests test-compile`：通过。
+2. `mvn -q "-Dtest=FinanceApprovalServiceImplTest" test`：通过（6/6）。
+3. `mvn -q "-Dtest=FinanceApprovalServiceImplTest,FinanceContractServiceImplTest,FinanceFundsServiceImplTest,VoucherServiceImplTest" test`：通过。
+4. 环境仍有 `Access is denied.` 噪声输出，不影响命令退出码与结果判定。
+
+### 未做事项
+1. 未接合同/支付/财务自动联动。
+2. 未实现并行网关、会签、加签、抄送等复杂流程能力。
+3. 未接消息通知中心与完整通知体系。
 
