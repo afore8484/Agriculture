@@ -9,6 +9,8 @@ import com.agriculture.villagefinance.module.finance.controller.vo.ContractChang
 import com.agriculture.villagefinance.module.finance.controller.vo.ContractCreateReqVO;
 import com.agriculture.villagefinance.module.finance.controller.vo.ContractOperationLogRespVO;
 import com.agriculture.villagefinance.module.finance.controller.vo.ContractPageRespVO;
+import com.agriculture.villagefinance.module.finance.controller.vo.ContractPaymentCreateReqVO;
+import com.agriculture.villagefinance.module.finance.controller.vo.ContractPaymentRespVO;
 import com.agriculture.villagefinance.module.finance.controller.vo.ContractRenewalCreateReqVO;
 import com.agriculture.villagefinance.module.finance.controller.vo.ContractRenewalRespVO;
 import com.agriculture.villagefinance.module.finance.controller.vo.ContractRespVO;
@@ -38,6 +40,12 @@ public interface FinanceContractService {
     ContractAcceptanceRespVO createAcceptance(ContractAcceptanceCreateReqVO reqVO);
 
     List<ContractAcceptanceRespVO> getAcceptanceList(Long contractId);
+
+    ContractPaymentRespVO createReceipt(ContractPaymentCreateReqVO reqVO);
+
+    ContractPaymentRespVO createPayment(ContractPaymentCreateReqVO reqVO);
+
+    List<ContractPaymentRespVO> getPaymentList(Long contractId, String paymentType);
 
     ContractTerminationRespVO createTermination(ContractTerminationCreateReqVO reqVO);
 

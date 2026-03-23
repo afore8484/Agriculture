@@ -10,6 +10,8 @@ import com.agriculture.villagefinance.module.finance.controller.vo.ContractChang
 import com.agriculture.villagefinance.module.finance.controller.vo.ContractCreateReqVO;
 import com.agriculture.villagefinance.module.finance.controller.vo.ContractOperationLogRespVO;
 import com.agriculture.villagefinance.module.finance.controller.vo.ContractPageRespVO;
+import com.agriculture.villagefinance.module.finance.controller.vo.ContractPaymentCreateReqVO;
+import com.agriculture.villagefinance.module.finance.controller.vo.ContractPaymentRespVO;
 import com.agriculture.villagefinance.module.finance.controller.vo.ContractRenewalCreateReqVO;
 import com.agriculture.villagefinance.module.finance.controller.vo.ContractRenewalRespVO;
 import com.agriculture.villagefinance.module.finance.controller.vo.ContractRespVO;
@@ -109,6 +111,28 @@ public class ContractController {
     @GetMapping("/accept/list")
     public CommonResult<List<ContractAcceptanceRespVO>> getAcceptanceList(@RequestParam Long contractId) {
         return CommonResult.success(financeContractService.getAcceptanceList(contractId));
+    }
+
+    @PostMapping("/receipt")
+    public CommonResult<ContractPaymentRespVO> createReceipt(@Valid @RequestBody ContractPaymentCreateReqVO reqVO) {
+        return CommonResult.success(financeContractService.createReceipt(reqVO));
+    }
+
+    @PostMapping("/pay")
+    public CommonResult<ContractPaymentRespVO> createPayment(@Valid @RequestBody ContractPaymentCreateReqVO reqVO) {
+        return CommonResult.success(financeContractService.createPayment(reqVO));
+    }
+
+    @GetMapping("/payment/list")
+    public CommonResult<List<ContractPaymentRespVO>> getPaymentList(@RequestParam Long contractId,
+                                                                    @RequestParam(required = false) String paymentType) {
+        return CommonResult.success(financeContractService.getPaymentList(contractId, paymentType));
+    }
+
+    @GetMapping("/{contractId}/payments")
+    public CommonResult<List<ContractPaymentRespVO>> getPaymentListByPath(@PathVariable Long contractId,
+                                                                          @RequestParam(required = false) String paymentType) {
+        return CommonResult.success(financeContractService.getPaymentList(contractId, paymentType));
     }
 
     @PostMapping("/terminate")

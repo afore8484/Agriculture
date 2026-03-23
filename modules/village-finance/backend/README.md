@@ -17,6 +17,12 @@
 3. 前端原型工程只作为参考：
    - `modules/village-finance/frontend`
 
+## 前后端协作基线（2026-03-21）
+
+1. 未经用户直接下达前端修改命令，不得修改任何前端页面组件代码。
+2. 在该限制下可进行后端 API 开发与联调支撑。
+3. 后端接口分类与交付清单必须按前端页面维度组织（页面 -> 接口 -> 数据对象 -> 测试）。
+
 ## 技术约束
 
 1. Java 17+
@@ -32,6 +38,20 @@
 3. 最小编译验证（推荐）：`mvn -q -pl ../modules/village-finance/backend -am -DskipTests test-compile`
 4. 最小测试验证（推荐）：`mvn -q -pl ../modules/village-finance/backend "-Dtest=FinanceFoundationQueryServiceImplTest,FinanceFundsServiceImplTest,VoucherServiceImplTest" test`
 5. 全量测试：`mvn -pl ../modules/village-finance/backend test`
+
+## 回归测试基线命令（2026-03-22 冻结）
+
+1. 生成接口目录（控制器提取）  
+`powershell -ExecutionPolicy Bypass -File scripts/generate_finance_api_catalog.ps1`
+2. 生成回归用例基线（每接口 L1/L2正/L2反）  
+`powershell -ExecutionPolicy Bypass -File scripts/generate_finance_regression_cases.ps1`
+3. 执行全接口 L1 路由回归  
+`powershell -ExecutionPolicy Bypass -File scripts/run_finance_route_regression.ps1`
+4. 校验“接口目录 vs 用例基线”一致性  
+`powershell -ExecutionPolicy Bypass -File scripts/validate_finance_regression_cases.ps1`
+
+回归产物目录：`output/`  
+回归基线文档：`docs/village-finance/interface/全接口回归测试基线.md`
 
 ## 当前状态
 
@@ -95,6 +115,33 @@
    - `modules/village-finance/backend/pom.xml` 已切换为父工程继承模式（`relativePath=../../../ruoyi-vue-pro/pom.xml`）
    - `mvn -q -pl ../modules/village-finance/backend -am -DskipTests test-compile` 通过
    - `FinanceFoundationQueryServiceImplTest`、`FinanceFundsServiceImplTest`、`VoucherServiceImplTest` 最小链路可运行
+16. Dashboard 页面接口补齐（2026-03-21）：
+   - 新增首页聚合接口控制器：`HomeController`（双路径 `/api/village-finance/home` 与 `/api/home`）
+   - 新增首页接口：
+     - `GET /stats`
+     - `GET /todos`
+     - `GET /charts`
+     - `GET /asset-distribution`
+     - `GET /recent-vouchers`
+     - `GET /progress`
+   - 新增首页服务：`FinanceHomeService` + `FinanceHomeServiceImpl`
+   - 凭证列表补齐 `summary` 字段：`GET /api/village-finance/vouchers`
+
+## 页面接口对齐（Dashboard）
+
+1. 统计卡片：
+   - `GET /api/village-finance/home/stats`（兼容 `GET /api/home/stats`）
+2. 待办事项：
+   - `GET /api/village-finance/home/todos`（兼容 `GET /api/home/todos`）
+3. 月度趋势：
+   - `GET /api/village-finance/home/charts`（兼容 `GET /api/home/charts`）
+4. 资产分布：
+   - `GET /api/village-finance/home/asset-distribution`
+5. 最近凭证：
+   - `GET /api/village-finance/home/recent-vouchers`
+   - `GET /api/village-finance/vouchers`（已补 `summary` 返回字段）
+6. 做账进度：
+   - `GET /api/village-finance/home/progress`（兼容 `GET /api/home/progress`）
 
 ## 首轮闭环验收收口（F1）
 
@@ -787,4 +834,39 @@ modules/village-finance/backend/
 1. 未接合同/支付/财务自动联动。
 2. 未实现并行网关、会签、加签、抄送等复杂流程能力。
 3. 未接消息通知中心与完整通知体系。
+
+## 数据库补齐与Mock数据（2026-03-20）
+
+### 本轮目标
+1. 按数据结构基线补齐 `village_finance_ops` 缺失表。
+2. 生成可用于联调/回归的最小 mock 数据。
+3. 解释“此前无完整数据库仍可测过”的原因。
+
+### 落地文件
+1. Flyway：`src/main/resources/db/migration/V10__baseline_complement_tables.sql`
+2. Mock 数据：`src/main/resources/db/mock/mock_data.sql`
+3. 执行辅助脚本（仅用于本地/远程 SQL 执行与核对）：
+   - `scripts/ExecuteSqlFile.java`
+   - `scripts/QueryDbTables.java`
+   - `scripts/QueryTableColumns.java`
+   - `scripts/QueryTableCounts.java`
+
+### 远程库执行结果
+1. 已执行：`V10__baseline_complement_tables.sql`。
+2. 已执行：`V6__asset_r1a_minimal.sql`、`V7__contract_r1a_minimal.sql`、`V8__contract_payment_r1b.sql`、`V9__approval_r1a_minimal.sql`。
+3. 已执行：`db/mock/mock_data.sql`。
+4. 表名核对结果：按 `docs/village-finance/data/数据结构文档.md` 提取的 61 张表，当前库内同名表 `missing = 0`。
+
+### 为什么之前“没完整数据库”也能测试通过
+1. 之前通过的主要是单元测试（`Mockito` + 手工构造 Service），不是依赖真实 PostgreSQL 的集成测试。
+2. 典型样例：
+   - `FinanceFoundationQueryServiceImplTest`
+   - `FinanceFundsServiceImplTest`
+   - `VoucherServiceImplTest`
+3. 这些测试对 Mapper 使用 `mock(...)`，不会真实连库；因此在数据库不完整时依然可以通过。
+
+### 当前风险
+1. 远程库存在历史异构表（同名但字段口径不同）的情况，例如 `fin_voucher`、`fin_bank_journal` 等。
+2. 当前账号对部分历史表不是 owner，因此无法做结构改造（仅可按权限做 DML）。
+3. 已通过“新增补齐表 + 兼容约束”完成落库，但“历史异构表与现代码 DO 全量一致性”仍需专项收口。
 

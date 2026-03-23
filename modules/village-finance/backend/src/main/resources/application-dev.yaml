@@ -1,7 +1,7 @@
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://${DB_HOST:127.0.0.1}:${DB_PORT:5432}/${DB_NAME:village_finance_dev}?currentSchema=${DB_SCHEMA:village_finance_ops}
+    url: jdbc:postgresql://${DB_HOST:43.143.232.82}:${DB_PORT:5432}/${DB_NAME:village_finance_dev}?currentSchema=${DB_SCHEMA:village_finance_ops}
     username: ${DB_USER:village_finance}
     password: ${DB_PASSWORD:9AsWSC4h0eq3JwfBzIpY}
     hikari:

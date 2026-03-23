@@ -11,6 +11,7 @@ public class VoucherListRespVO {
     private Long voucherId;
     private String voucherNo;
     private LocalDate voucherDate;
+    private String summary;
     private String voucherType;
     private Long bizId;
     private BigDecimal totalAmount;

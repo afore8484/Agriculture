@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
-public class GlobalExceptionHandler {
+public class FinanceGlobalExceptionHandler {
 
     @ExceptionHandler({IllegalArgumentException.class, IllegalStateException.class})
     public CommonResult<Void> handleBizException(RuntimeException ex) {
