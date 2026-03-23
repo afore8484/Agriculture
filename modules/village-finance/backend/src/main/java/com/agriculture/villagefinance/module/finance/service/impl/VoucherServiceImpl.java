@@ -47,6 +47,7 @@ import org.springframework.util.StringUtils;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -100,7 +101,11 @@ public class VoucherServiceImpl implements VoucherService {
             wrapper.le(FinVoucherDO::getVoucherDate, endDate);
         }
         List<FinVoucherDO> vouchers = applyPagination(finVoucherMapper.selectList(wrapper), pageNum, pageSize);
-        return vouchers.stream().map(this::toVoucherListVO).toList();
+        if (vouchers.isEmpty()) {
+            return List.of();
+        }
+        Map<Long, String> summaryMap = loadFirstEntrySummary(vouchers.stream().map(FinVoucherDO::getId).collect(Collectors.toSet()));
+        return vouchers.stream().map(voucher -> toVoucherListVO(voucher, summaryMap.get(voucher.getId()))).toList();
     }
 
     @Override
@@ -124,7 +129,7 @@ public class VoucherServiceImpl implements VoucherService {
         validateEntries(reqVO.getEntries());
         String voucherType = FinanceVoucherType.normalize(reqVO.getVoucherType());
         validateVoucherSource(voucherType, reqVO.getBizId());
-        LocalDateTime now = LocalDateTime.now();
+        OffsetDateTime now = OffsetDateTime.now();
         FinVoucherDO voucher = new FinVoucherDO();
         voucher.setVoucherNo(generateVoucherNo(book, period, reqVO.getVoucherDate()));
         voucher.setVoucherDate(reqVO.getVoucherDate());
@@ -290,7 +295,7 @@ public class VoucherServiceImpl implements VoucherService {
         voucher.setTotalCredit(recycle.getTotalCredit());
         voucher.setStatus(STATUS_DRAFT);
         voucher.setCreatedBy(defaultOperator(operatorId));
-        voucher.setCreatedAt(LocalDateTime.now());
+        voucher.setCreatedAt(OffsetDateTime.now());
         voucher.setRemark(recycle.getRemark());
         finVoucherMapper.insert(voucher);
         List<FinVoucherRecycleEntryDO> recycleEntries = finVoucherRecycleEntryMapper.selectList(new LambdaQueryWrapper<FinVoucherRecycleEntryDO>()
@@ -520,11 +525,27 @@ public class VoucherServiceImpl implements VoucherService {
         return vo;
     }
 
-    private VoucherListRespVO toVoucherListVO(FinVoucherDO voucher) {
+    private Map<Long, String> loadFirstEntrySummary(Set<Long> voucherIds) {
+        if (voucherIds == null || voucherIds.isEmpty()) {
+            return Map.of();
+        }
+        List<FinVoucherEntryDO> entries = finVoucherEntryMapper.selectList(new LambdaQueryWrapper<FinVoucherEntryDO>()
+                .in(FinVoucherEntryDO::getVoucherId, voucherIds)
+                .orderByAsc(FinVoucherEntryDO::getVoucherId)
+                .orderByAsc(FinVoucherEntryDO::getLineNo));
+        Map<Long, String> summaryMap = new LinkedHashMap<>();
+        for (FinVoucherEntryDO entry : entries) {
+            summaryMap.putIfAbsent(entry.getVoucherId(), entry.getSummary());
+        }
+        return summaryMap;
+    }
+
+    private VoucherListRespVO toVoucherListVO(FinVoucherDO voucher, String summary) {
         VoucherListRespVO vo = new VoucherListRespVO();
         vo.setVoucherId(voucher.getId());
         vo.setVoucherNo(voucher.getVoucherNo());
         vo.setVoucherDate(voucher.getVoucherDate());
+        vo.setSummary(summary);
         vo.setVoucherType(voucher.getVoucherType());
         vo.setBizId(voucher.getBizId());
         vo.setTotalAmount(voucher.getTotalDebit());

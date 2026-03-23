@@ -6,25 +6,26 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import cn.iocoder.yudao.framework.tenant.core.aop.TenantIgnore;
 import lombok.Data;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
 @TenantIgnore
-@TableName("fin_asset_depreciation")
-public class FinAssetDepreciationDO {
+@TableName("fin_approve_instance")
+public class FinApproveInstanceDO {
 
     @TableId(type = IdType.AUTO)
     private Long id;
-    private Long assetId;
-    private Long bookId;
-    private String periodLabel;
-    private BigDecimal depreciationAmount;
-    private BigDecimal accumulatedAmount;
-    private BigDecimal netValueAfter;
-    private Long voucherId;
-    private Long createdBy;
-    private LocalDateTime createdAt;
+    private Long processId;
+    private String bizType;
+    private Long bizId;
+    private String instanceNo;
+    private Long applicantId;
+    private String currentNode;
+    private String approveStatus;
+    private LocalDateTime startTime;
+    private LocalDateTime endTime;
     private String remark;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }
 

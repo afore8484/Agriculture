@@ -1,184 +1,186 @@
 server:
-  port: 48080
+  port: 48085
 
---- #################### 数据库相关配置 ####################
+--- #################### 鏁版嵁搴撶浉鍏抽厤缃?####################
 spring:
   autoconfigure:
     # noinspection SpringBootApplicationYaml
     exclude:
-      - org.springframework.boot.autoconfigure.quartz.QuartzAutoConfiguration # 默认 local 环境，不开启 Quartz 的自动配置
-      - org.springframework.ai.vectorstore.qdrant.autoconfigure.QdrantVectorStoreAutoConfiguration # 禁用 AI 模块的 Qdrant，手动创建
-      - org.springframework.ai.vectorstore.milvus.autoconfigure.MilvusVectorStoreAutoConfiguration # 禁用 AI 模块的 Milvus，手动创建
-  # 数据源配置项
+      - org.springframework.boot.autoconfigure.quartz.QuartzAutoConfiguration # 榛樿 local 鐜锛屼笉寮€鍚?Quartz 鐨勮嚜鍔ㄩ厤缃?
+      - org.springframework.ai.vectorstore.qdrant.autoconfigure.QdrantVectorStoreAutoConfiguration # 绂佺敤 AI 妯″潡鐨?Qdrant锛屾墜鍔ㄥ垱寤?
+      - org.springframework.ai.vectorstore.milvus.autoconfigure.MilvusVectorStoreAutoConfiguration # 绂佺敤 AI 妯″潡鐨?Milvus锛屾墜鍔ㄥ垱寤?
+  # 鏁版嵁婧愰厤缃」
   datasource:
-    druid: # Druid 【监控】相关的全局配置
+    druid: # Druid 銆愮洃鎺с€戠浉鍏崇殑鍏ㄥ眬閰嶇疆
       web-stat-filter:
         enabled: true
       stat-view-servlet:
         enabled: true
-        allow: # 设置白名单，不填则允许所有访问
+        allow: # 璁剧疆鐧藉悕鍗曪紝涓嶅～鍒欏厑璁告墍鏈夎闂?
         url-pattern: /druid/*
-        login-username: # 控制台管理用户名和密码
+        login-username: # 鎺у埗鍙扮鐞嗙敤鎴峰悕鍜屽瘑鐮?
         login-password:
       filter:
         stat:
           enabled: true
-          log-slow-sql: true # 慢 SQL 记录
+          log-slow-sql: true # 鎱?SQL 璁板綍
           slow-sql-millis: 100
           merge-sql: true
         wall:
           config:
             multi-statement-allow: true
-    dynamic: # 多数据源配置
-      druid: # Druid 【连接池】相关的全局配置
-        initial-size: 1 # 初始连接数
-        min-idle: 1 # 最小连接池数量
-        max-active: 20 # 最大连接池数量
-        max-wait: 60000 # 配置获取连接等待超时的时间，单位：毫秒（1 分钟）
-        time-between-eviction-runs-millis: 60000 # 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位：毫秒（1 分钟）
-        min-evictable-idle-time-millis: 600000 # 配置一个连接在池中最小生存的时间，单位：毫秒（10 分钟）
-        max-evictable-idle-time-millis: 1800000 # 配置一个连接在池中最大生存的时间，单位：毫秒（30 分钟）
-        validation-query: SELECT 1 FROM DUAL # 配置检测连接是否有效
+    dynamic: # 澶氭暟鎹簮閰嶇疆
+      druid: # Druid 銆愯繛鎺ユ睜銆戠浉鍏崇殑鍏ㄥ眬閰嶇疆
+        initial-size: 1 # 鍒濆杩炴帴鏁?
+        min-idle: 1 # 鏈€灏忚繛鎺ユ睜鏁伴噺
+        max-active: 20 # 鏈€澶ц繛鎺ユ睜鏁伴噺
+        max-wait: 60000 # 閰嶇疆鑾峰彇杩炴帴绛夊緟瓒呮椂鐨勬椂闂达紝鍗曚綅锛氭绉掞紙1 鍒嗛挓锛?
+        time-between-eviction-runs-millis: 60000 # 閰嶇疆闂撮殧澶氫箙鎵嶈繘琛屼竴娆℃娴嬶紝妫€娴嬮渶瑕佸叧闂殑绌洪棽杩炴帴锛屽崟浣嶏細姣锛? 鍒嗛挓锛?
+        min-evictable-idle-time-millis: 600000 # 閰嶇疆涓€涓繛鎺ュ湪姹犱腑鏈€灏忕敓瀛樼殑鏃堕棿锛屽崟浣嶏細姣锛?0 鍒嗛挓锛?
+        max-evictable-idle-time-millis: 1800000 # 閰嶇疆涓€涓繛鎺ュ湪姹犱腑鏈€澶х敓瀛樼殑鏃堕棿锛屽崟浣嶏細姣锛?0 鍒嗛挓锛?
+        validation-query: SELECT 1 # PostgreSQL 鍋ュ悍妫€鏌?SQL
         test-while-idle: true
         test-on-borrow: false
         test-on-return: false
-        pool-prepared-statements: true # 是否开启 PreparedStatement 缓存
-        max-pool-prepared-statement-per-connection-size: 20 # 每个连接缓存的 PreparedStatement 数量
+        pool-prepared-statements: true # 鏄惁寮€鍚?PreparedStatement 缂撳瓨
+        max-pool-prepared-statement-per-connection-size: 20 # 姣忎釜杩炴帴缂撳瓨鐨?PreparedStatement 鏁伴噺
       primary: master
       datasource:
         master:
-          url: jdbc:mysql://127.0.0.1:3306/ruoyi-vue-pro?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&nullCatalogMeansCurrent=true&rewriteBatchedStatements=true # MySQL Connector/J 8.X 连接的示例
-          #          url: jdbc:mysql://127.0.0.1:3306/ruoyi-vue-pro?useSSL=true&allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&rewriteBatchedStatements=true # MySQL Connector/J 5.X 连接的示例
-          #          url: jdbc:postgresql://127.0.0.1:5432/ruoyi-vue-pro # PostgreSQL 连接的示例
-          #          url: jdbc:oracle:thin:@127.0.0.1:1521:xe # Oracle 连接的示例
-          #          url: jdbc:sqlserver://127.0.0.1:1433;DatabaseName=ruoyi-vue-pro;SelectMethod=cursor;encrypt=false;rewriteBatchedStatements=true;useUnicode=true;characterEncoding=utf-8 # SQLServer 连接的示例
-          #          url: jdbc:dm://127.0.0.1:5236?schema=RUOYI_VUE_PRO # DM 连接的示例
-          #          url: jdbc:kingbase8://127.0.0.1:54321/test  # 人大金仓 KingbaseES 连接的示例
-          #          url: jdbc:postgresql://127.0.0.1:5432/postgres # OpenGauss 连接的示例
-          username: root
-          password: 123456
-          #          username: sa # SQL Server 连接的示例
-          #          password: Yudao@2024 # SQL Server 连接的示例
-          #          username: SYSDBA # DM 连接的示例
-          #          password: SYSDBA001 # DM 连接的示例
-          #          username: root # OpenGauss 连接的示例
-          #          password: Yudao@2024 # OpenGauss 连接的示例
-        slave: # 模拟从库，可根据自己需要修改
-          lazy: true # 开启懒加载，保证启动速度
-          url: jdbc:mysql://127.0.0.1:3306/ruoyi-vue-pro?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&rewriteBatchedStatements=true&nullCatalogMeansCurrent=true
-          username: root
-          password: 123456
-#        tdengine: # IoT 数据库（需要 IoT 物联网再开启噢！）
-#          lazy: true # 开启懒加载，保证启动速度
+          url: jdbc:postgresql://${DB_HOST:43.143.232.82}:${DB_PORT:5432}/${DB_NAME:village_finance_dev}?currentSchema=${DB_SCHEMA:village_finance_ops}
+          driver-class-name: org.postgresql.Driver
+          #          url: jdbc:mysql://127.0.0.1:3306/ruoyi-vue-pro?useSSL=true&allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&rewriteBatchedStatements=true # MySQL Connector/J 5.X 杩炴帴鐨勭ず渚?
+          #          url: jdbc:postgresql://127.0.0.1:5432/ruoyi-vue-pro # PostgreSQL 杩炴帴鐨勭ず渚?
+          #          url: jdbc:oracle:thin:@127.0.0.1:1521:xe # Oracle 杩炴帴鐨勭ず渚?
+          #          url: jdbc:sqlserver://127.0.0.1:1433;DatabaseName=ruoyi-vue-pro;SelectMethod=cursor;encrypt=false;rewriteBatchedStatements=true;useUnicode=true;characterEncoding=utf-8 # SQLServer 杩炴帴鐨勭ず渚?
+          #          url: jdbc:dm://127.0.0.1:5236?schema=RUOYI_VUE_PRO # DM 杩炴帴鐨勭ず渚?
+          #          url: jdbc:kingbase8://127.0.0.1:54321/test  # 浜哄ぇ閲戜粨 KingbaseES 杩炴帴鐨勭ず渚?
+          #          url: jdbc:postgresql://127.0.0.1:5432/postgres # OpenGauss 杩炴帴鐨勭ず渚?
+          username: ${DB_USER:village_finance}
+          password: ${DB_PASSWORD:9AsWSC4h0eq3JwfBzIpY}
+          #          username: sa # SQL Server 杩炴帴鐨勭ず渚?
+          #          password: Yudao@2024 # SQL Server 杩炴帴鐨勭ず渚?
+          #          username: SYSDBA # DM 杩炴帴鐨勭ず渚?
+          #          password: SYSDBA001 # DM 杩炴帴鐨勭ず渚?
+          #          username: root # OpenGauss 杩炴帴鐨勭ず渚?
+          #          password: Yudao@2024 # OpenGauss 杩炴帴鐨勭ず渚?
+        slave: # 妯℃嫙浠庡簱锛屽彲鏍规嵁鑷繁闇€瑕佷慨鏀?
+          lazy: true # 寮€鍚噿鍔犺浇锛屼繚璇佸惎鍔ㄩ€熷害
+          url: jdbc:postgresql://${DB_HOST:43.143.232.82}:${DB_PORT:5432}/${DB_NAME_SLAVE:${DB_NAME:village_finance_dev}}?currentSchema=${DB_SCHEMA:village_finance_ops}
+          driver-class-name: org.postgresql.Driver
+          username: ${DB_USER:village_finance}
+          password: ${DB_PASSWORD:9AsWSC4h0eq3JwfBzIpY}
+#        tdengine: # IoT 鏁版嵁搴擄紙闇€瑕?IoT 鐗╄仈缃戝啀寮€鍚櫌锛侊級
+#          lazy: true # 寮€鍚噿鍔犺浇锛屼繚璇佸惎鍔ㄩ€熷害
 #          url: jdbc:TAOS-WS://127.0.0.1:6041/ruoyi_vue_pro?varcharAsString=true
 #          driver-class-name: com.taosdata.jdbc.ws.WebSocketDriver
 #          username: root
 #          password: taosdata
 #          druid:
-#            validation-query: SELECT SERVER_STATUS() # TDengine 数据源的有效性检查 SQL
+#            validation-query: SELECT SERVER_STATUS() # TDengine 鏁版嵁婧愮殑鏈夋晥鎬ф鏌?SQL
 
-  # Redis 配置。Redisson 默认的配置足够使用，一般不需要进行调优
+  # Redis 閰嶇疆銆俁edisson 榛樿鐨勯厤缃冻澶熶娇鐢紝涓€鑸笉闇€瑕佽繘琛岃皟浼?
   data:
     redis:
-      host: 127.0.0.1 # 地址
-      port: 6379 # 端口
-      database: 0 # 数据库索引
-#      password: dev # 密码，建议生产环境开启
+      host: 127.0.0.1 # 鍦板潃
+      port: 6379 # 绔彛
+      database: 0 # 鏁版嵁搴撶储寮?
+#      password: dev # 瀵嗙爜锛屽缓璁敓浜х幆澧冨紑鍚?
 
---- #################### 定时任务相关配置 ####################
+--- #################### 瀹氭椂浠诲姟鐩稿叧閰嶇疆 ####################
 
-# Quartz 配置项，对应 QuartzProperties 配置类
+# Quartz 閰嶇疆椤癸紝瀵瑰簲 QuartzProperties 閰嶇疆绫?
 spring:
   quartz:
-    auto-startup: true # 本地开发环境，尽量不要开启 Job
-    scheduler-name: schedulerName # Scheduler 名字。默认为 schedulerName
-    job-store-type: jdbc # Job 存储器类型。默认为 memory 表示内存，可选 jdbc 使用数据库。
-    wait-for-jobs-to-complete-on-shutdown: true # 应用关闭时，是否等待定时任务执行完成。默认为 false ，建议设置为 true
-    properties: # 添加 Quartz Scheduler 附加属性，更多可以看 http://www.quartz-scheduler.org/documentation/2.4.0-SNAPSHOT/configuration.html 文档
+    auto-startup: true # 鏈湴寮€鍙戠幆澧冿紝灏介噺涓嶈寮€鍚?Job
+    scheduler-name: schedulerName # Scheduler 鍚嶅瓧銆傞粯璁や负 schedulerName
+    job-store-type: jdbc # Job 瀛樺偍鍣ㄧ被鍨嬨€傞粯璁や负 memory 琛ㄧず鍐呭瓨锛屽彲閫?jdbc 浣跨敤鏁版嵁搴撱€?
+    wait-for-jobs-to-complete-on-shutdown: true # 搴旂敤鍏抽棴鏃讹紝鏄惁绛夊緟瀹氭椂浠诲姟鎵ц瀹屾垚銆傞粯璁や负 false 锛屽缓璁缃负 true
+    properties: # 娣诲姞 Quartz Scheduler 闄勫姞灞炴€э紝鏇村鍙互鐪?http://www.quartz-scheduler.org/documentation/2.4.0-SNAPSHOT/configuration.html 鏂囨。
       org:
         quartz:
-          # Scheduler 相关配置
+          # Scheduler 鐩稿叧閰嶇疆
           scheduler:
             instanceName: schedulerName
-            instanceId: AUTO # 自动生成 instance ID
-          # JobStore 相关配置
+            instanceId: AUTO # 鑷姩鐢熸垚 instance ID
+          # JobStore 鐩稿叧閰嶇疆
           jobStore:
-            # JobStore 实现类。可见博客：https://blog.csdn.net/weixin_42458219/article/details/122247162
+            # JobStore 瀹炵幇绫汇€傚彲瑙佸崥瀹細https://blog.csdn.net/weixin_42458219/article/details/122247162
             class: org.springframework.scheduling.quartz.LocalDataSourceJobStore
-            isClustered: true # 是集群模式
-            clusterCheckinInterval: 15000 # 集群检查频率，单位：毫秒。默认为 15000，即 15 秒
-            misfireThreshold: 60000 # misfire 阀值，单位：毫秒。
-          # 线程池相关配置
+            isClustered: true # 鏄泦缇ゆā寮?
+            clusterCheckinInterval: 15000 # 闆嗙兢妫€鏌ラ鐜囷紝鍗曚綅锛氭绉掋€傞粯璁や负 15000锛屽嵆 15 绉?
+            misfireThreshold: 60000 # misfire 闃€鍊硷紝鍗曚綅锛氭绉掋€?
+          # 绾跨▼姹犵浉鍏抽厤缃?
           threadPool:
-            threadCount: 25 # 线程池大小。默认为 10 。
-            threadPriority: 5 # 线程优先级
-            class: org.quartz.simpl.SimpleThreadPool # 线程池类型
-    jdbc: # 使用 JDBC 的 JobStore 的时候，JDBC 的配置
-      initialize-schema: NEVER # 是否自动使用 SQL 初始化 Quartz 表结构。这里设置成 never ，我们手动创建表结构。
+            threadCount: 25 # 绾跨▼姹犲ぇ灏忋€傞粯璁や负 10 銆?
+            threadPriority: 5 # 绾跨▼浼樺厛绾?
+            class: org.quartz.simpl.SimpleThreadPool # 绾跨▼姹犵被鍨?
+    jdbc: # 浣跨敤 JDBC 鐨?JobStore 鐨勬椂鍊欙紝JDBC 鐨勯厤缃?
+      initialize-schema: NEVER # 鏄惁鑷姩浣跨敤 SQL 鍒濆鍖?Quartz 琛ㄧ粨鏋勩€傝繖閲岃缃垚 never 锛屾垜浠墜鍔ㄥ垱寤鸿〃缁撴瀯銆?
 
---- #################### 消息队列相关 ####################
+--- #################### 娑堟伅闃熷垪鐩稿叧 ####################
 
-# rocketmq 配置项，对应 RocketMQProperties 配置类
+# rocketmq 閰嶇疆椤癸紝瀵瑰簲 RocketMQProperties 閰嶇疆绫?
 rocketmq:
   name-server: 127.0.0.1:9876 # RocketMQ Namesrv
 
 spring:
-  # RabbitMQ 配置项，对应 RabbitProperties 配置类
+  # RabbitMQ 閰嶇疆椤癸紝瀵瑰簲 RabbitProperties 閰嶇疆绫?
   rabbitmq:
-    host: 127.0.0.1 # RabbitMQ 服务的地址
-    port: 5672 # RabbitMQ 服务的端口
-    username: rabbit # RabbitMQ 服务的账号
-    password: rabbit # RabbitMQ 服务的密码
-  # Kafka 配置项，对应 KafkaProperties 配置类
+    host: 127.0.0.1 # RabbitMQ 鏈嶅姟鐨勫湴鍧€
+    port: 5672 # RabbitMQ 鏈嶅姟鐨勭鍙?
+    username: rabbit # RabbitMQ 鏈嶅姟鐨勮处鍙?
+    password: rabbit # RabbitMQ 鏈嶅姟鐨勫瘑鐮?
+  # Kafka 閰嶇疆椤癸紝瀵瑰簲 KafkaProperties 閰嶇疆绫?
   kafka:
-    bootstrap-servers: 127.0.0.1:9092 # 指定 Kafka Broker 地址，可以设置多个，以逗号分隔
+    bootstrap-servers: 127.0.0.1:9092 # 鎸囧畾 Kafka Broker 鍦板潃锛屽彲浠ヨ缃涓紝浠ラ€楀彿鍒嗛殧
 
---- #################### 服务保障相关配置 ####################
+--- #################### 鏈嶅姟淇濋殰鐩稿叧閰嶇疆 ####################
 
-# Lock4j 配置项
+# Lock4j 閰嶇疆椤?
 lock4j:
-  acquire-timeout: 3000 # 获取分布式锁超时时间，默认为 3000 毫秒
-  expire: 30000 # 分布式锁的超时时间，默认为 30 毫秒
+  acquire-timeout: 3000 # 鑾峰彇鍒嗗竷寮忛攣瓒呮椂鏃堕棿锛岄粯璁や负 3000 姣
+  expire: 30000 # 鍒嗗竷寮忛攣鐨勮秴鏃舵椂闂达紝榛樿涓?30 姣
 
---- #################### 监控相关配置 ####################
+--- #################### 鐩戞帶鐩稿叧閰嶇疆 ####################
 
-# Actuator 监控端点的配置项
+# Actuator 鐩戞帶绔偣鐨勯厤缃」
 management:
   endpoints:
     web:
-      base-path: /actuator # Actuator 提供的 API 接口的根目录。默认为 /actuator
+      base-path: /actuator # Actuator 鎻愪緵鐨?API 鎺ュ彛鐨勬牴鐩綍銆傞粯璁や负 /actuator
       exposure:
-        include: '*' # 需要开放的端点。默认值只打开 health 和 info 两个端点。通过设置 * ，可以开放所有端点。
+        include: '*' # 闇€瑕佸紑鏀剧殑绔偣銆傞粯璁ゅ€煎彧鎵撳紑 health 鍜?info 涓や釜绔偣銆傞€氳繃璁剧疆 * 锛屽彲浠ュ紑鏀炬墍鏈夌鐐广€?
 
-# Spring Boot Admin 配置项
+# Spring Boot Admin 閰嶇疆椤?
 spring:
   boot:
     admin:
-      # Spring Boot Admin Client 客户端的相关配置
+      # Spring Boot Admin Client 瀹㈡埛绔殑鐩稿叧閰嶇疆
       client:
-        url: http://127.0.0.1:${server.port}/${spring.boot.admin.context-path} # 设置 Spring Boot Admin Server 地址
+        url: http://127.0.0.1:${server.port}/${spring.boot.admin.context-path} # 璁剧疆 Spring Boot Admin Server 鍦板潃
         instance:
-          service-host-type: IP # 注册实例时，优先使用 IP [IP, HOST_NAME, CANONICAL_HOST_NAME]
+          service-host-type: IP # 娉ㄥ唽瀹炰緥鏃讹紝浼樺厛浣跨敤 IP [IP, HOST_NAME, CANONICAL_HOST_NAME]
         username: admin
         password: admin
-      # Spring Boot Admin Server 服务端的相关配置
-      context-path: /admin # 配置 Spring
+      # Spring Boot Admin Server 鏈嶅姟绔殑鐩稿叧閰嶇疆
+      context-path: /admin # 閰嶇疆 Spring
 
-# 日志文件配置
+# 鏃ュ織鏂囦欢閰嶇疆
 logging:
   file:
-    name: ${user.home}/logs/${spring.application.name}.log # 日志文件名，全路径
+    name: ${user.home}/logs/${spring.application.name}.log # 鏃ュ織鏂囦欢鍚嶏紝鍏ㄨ矾寰?
   level:
-    # 配置自己写的 MyBatis Mapper 打印日志
+    # 閰嶇疆鑷繁鍐欑殑 MyBatis Mapper 鎵撳嵃鏃ュ織
     cn.iocoder.yudao.module.bpm.dal.mysql: debug
     cn.iocoder.yudao.module.infra.dal.mysql: debug
-    cn.iocoder.yudao.module.infra.dal.mysql.logger.ApiErrorLogMapper: INFO # 配置 ApiErrorLogMapper 的日志级别为 info，避免和 GlobalExceptionHandler 重复打印
-    cn.iocoder.yudao.module.infra.dal.mysql.job.JobLogMapper: INFO # 配置 JobLogMapper 的日志级别为 info
-    cn.iocoder.yudao.module.infra.dal.mysql.file.FileConfigMapper: INFO # 配置 FileConfigMapper 的日志级别为 info
+    cn.iocoder.yudao.module.infra.dal.mysql.logger.ApiErrorLogMapper: INFO # 閰嶇疆 ApiErrorLogMapper 鐨勬棩蹇楃骇鍒负 info锛岄伩鍏嶅拰 GlobalExceptionHandler 閲嶅鎵撳嵃
+    cn.iocoder.yudao.module.infra.dal.mysql.job.JobLogMapper: INFO # 閰嶇疆 JobLogMapper 鐨勬棩蹇楃骇鍒负 info
+    cn.iocoder.yudao.module.infra.dal.mysql.file.FileConfigMapper: INFO # 閰嶇疆 FileConfigMapper 鐨勬棩蹇楃骇鍒负 info
     cn.iocoder.yudao.module.pay.dal.mysql: debug
-    cn.iocoder.yudao.module.pay.dal.mysql.notify.PayNotifyTaskMapper: INFO # 配置 PayNotifyTaskMapper 的日志级别为 info
+    cn.iocoder.yudao.module.pay.dal.mysql.notify.PayNotifyTaskMapper: INFO # 閰嶇疆 PayNotifyTaskMapper 鐨勬棩蹇楃骇鍒负 info
     cn.iocoder.yudao.module.system.dal.mysql: debug
-    cn.iocoder.yudao.module.system.dal.mysql.sms.SmsChannelMapper: INFO # 配置 SmsChannelMapper 的日志级别为 info
+    cn.iocoder.yudao.module.system.dal.mysql.sms.SmsChannelMapper: INFO # 閰嶇疆 SmsChannelMapper 鐨勬棩蹇楃骇鍒负 info
     cn.iocoder.yudao.module.tool.dal.mysql: debug
     cn.iocoder.yudao.module.member.dal.mysql: debug
     cn.iocoder.yudao.module.trade.dal.mysql: debug
@@ -190,82 +192,82 @@ logging:
     cn.iocoder.yudao.module.iot.dal.tdengine: DEBUG
     cn.iocoder.yudao.module.iot.service.rule: debug
     cn.iocoder.yudao.module.ai.dal.mysql: debug
-    org.springframework.context.support.PostProcessorRegistrationDelegate: ERROR # TODO 芋艿：先禁用，Spring Boot 3.X 存在部分错误的 WARN 提示
+    org.springframework.context.support.PostProcessorRegistrationDelegate: ERROR # TODO 鑺嬭壙锛氬厛绂佺敤锛孲pring Boot 3.X 瀛樺湪閮ㄥ垎閿欒鐨?WARN 鎻愮ず
 
 debug: false
 
---- #################### 微信公众号、小程序相关配置 ####################
+--- #################### 寰俊鍏紬鍙枫€佸皬绋嬪簭鐩稿叧閰嶇疆 ####################
 wx:
-  mp: # 公众号配置（必填），参见 https://github.com/Wechat-Group/WxJava/blob/develop/spring-boot-starters/wx-java-mp-spring-boot-starter/README.md 文档
-#    app-id: wx041349c6f39b268b # 测试号（牛希尧提供的）
+  mp: # 鍏紬鍙烽厤缃紙蹇呭～锛夛紝鍙傝 https://github.com/Wechat-Group/WxJava/blob/develop/spring-boot-starters/wx-java-mp-spring-boot-starter/README.md 鏂囨。
+#    app-id: wx041349c6f39b268b # 娴嬭瘯鍙凤紙鐗涘笇灏ф彁渚涚殑锛?
 #    secret: 5abee519483bc9f8cb37ce280e814bd0
-#    app-id: wx5b23ba7a5589ecbb # 测试号（自己的）
+#    app-id: wx5b23ba7a5589ecbb # 娴嬭瘯鍙凤紙鑷繁鐨勶級
 #    secret: 2a7b3b20c537e52e74afd395eb85f61f
-    app-id: wxf56b1542b9e85f8a # 测试号（Kongdy 提供的）
+    app-id: wxf56b1542b9e85f8a # 娴嬭瘯鍙凤紙Kongdy 鎻愪緵鐨勶級
     secret: 496379dcef1ba869e9234de8d598cfd3
-    # 存储配置，解决 AccessToken 的跨节点的共享
+    # 瀛樺偍閰嶇疆锛岃В鍐?AccessToken 鐨勮法鑺傜偣鐨勫叡浜?
     config-storage:
-      type: RedisTemplate # 采用 RedisTemplate 操作 Redis，会自动从 Spring 中获取
-      key-prefix: wx # Redis Key 的前缀
-      http-client-type: HttpClient # 采用 HttpClient 请求微信公众号平台
-  miniapp: # 小程序配置（必填），参见 https://github.com/Wechat-Group/WxJava/blob/develop/spring-boot-starters/wx-java-miniapp-spring-boot-starter/README.md 文档
-    #    appid: wx62056c0d5e8db250 # 测试号（牛希尧提供的）
+      type: RedisTemplate # 閲囩敤 RedisTemplate 鎿嶄綔 Redis锛屼細鑷姩浠?Spring 涓幏鍙?
+      key-prefix: wx # Redis Key 鐨勫墠缂€
+      http-client-type: HttpClient # 閲囩敤 HttpClient 璇锋眰寰俊鍏紬鍙峰钩鍙?
+  miniapp: # 灏忕▼搴忛厤缃紙蹇呭～锛夛紝鍙傝 https://github.com/Wechat-Group/WxJava/blob/develop/spring-boot-starters/wx-java-miniapp-spring-boot-starter/README.md 鏂囨。
+    #    appid: wx62056c0d5e8db250 # 娴嬭瘯鍙凤紙鐗涘笇灏ф彁渚涚殑锛?
     #    secret: 333ae72f41552af1e998fe1f54e1584a
-#    appid: wx63c280fe3248a3e7 # wenhualian的接口测试号
+#    appid: wx63c280fe3248a3e7 # wenhualian鐨勬帴鍙ｆ祴璇曞彿
 #    secret: 6f270509224a7ae1296bbf1c8cb97aed
-    appid: wxc4598c446f8a9cb3 # 测试号（Kongdy 提供的）
+    appid: wxc4598c446f8a9cb3 # 娴嬭瘯鍙凤紙Kongdy 鎻愪緵鐨勶級
     secret: 4a1a04e07f6a4a0751b39c3064a92c8b
-#    appid: wx66186af0759f47c9 # 测试号（puhui 提供的）
+#    appid: wx66186af0759f47c9 # 娴嬭瘯鍙凤紙puhui 鎻愪緵鐨勶級
 #    secret: 3218bcbd112cbc614c7264ceb20144ac
     config-storage:
-      type: RedisTemplate # 采用 RedisTemplate 操作 Redis，会自动从 Spring 中获取
-      key-prefix: wa # Redis Key 的前缀
-      http-client-type: HttpClient # 采用 HttpClient 请求微信公众号平台
+      type: RedisTemplate # 閲囩敤 RedisTemplate 鎿嶄綔 Redis锛屼細鑷姩浠?Spring 涓幏鍙?
+      key-prefix: wa # Redis Key 鐨勫墠缂€
+      http-client-type: HttpClient # 閲囩敤 HttpClient 璇锋眰寰俊鍏紬鍙峰钩鍙?
 
---- #################### 芋道相关配置 ####################
+--- #################### 鑺嬮亾鐩稿叧閰嶇疆 ####################
 
-# 芋道配置项，设置当前项目所有自定义的配置
+# 鑺嬮亾閰嶇疆椤癸紝璁剧疆褰撳墠椤圭洰鎵€鏈夎嚜瀹氫箟鐨勯厤缃?
 yudao:
   captcha:
-    enable: false # 本地环境，暂时关闭图片验证码，方便登录等接口的测试；
+    enable: false # 鏈湴鐜锛屾殏鏃跺叧闂浘鐗囬獙璇佺爜锛屾柟渚跨櫥褰曠瓑鎺ュ彛鐨勬祴璇曪紱
   security:
     mock-enable: true
   pay:
-    order-notify-url: https://yutou.mynatapp.cc/admin-api/pay/notify/order # 支付渠道的【支付】回调地址
-    refund-notify-url: https://yutou.mynatapp.cc/admin-api/pay/notify/refund # 支付渠道的【退款】回调地址
-    transfer-notify-url: https://yutou.mynatapp.cc/admin-api/pay/notify/transfer # 支付渠道的【转账】回调地址
-  access-log: # 访问日志的配置项
+    order-notify-url: https://yutou.mynatapp.cc/admin-api/pay/notify/order # 鏀粯娓犻亾鐨勩€愭敮浠樸€戝洖璋冨湴鍧€
+    refund-notify-url: https://yutou.mynatapp.cc/admin-api/pay/notify/refund # 鏀粯娓犻亾鐨勩€愰€€娆俱€戝洖璋冨湴鍧€
+    transfer-notify-url: https://yutou.mynatapp.cc/admin-api/pay/notify/transfer # 鏀粯娓犻亾鐨勩€愯浆璐︺€戝洖璋冨湴鍧€
+  access-log: # 璁块棶鏃ュ織鐨勯厤缃」
     enable: false
-  demo: false # 关闭演示模式
+  demo: false # 鍏抽棴婕旂ず妯″紡
   wxa-code:
-    env-version: develop # 小程序版本: 正式版为 "release"；体验版为 "trial"；开发版为 "develop"
+    env-version: develop # 灏忕▼搴忕増鏈? 姝ｅ紡鐗堜负 "release"锛涗綋楠岀増涓?"trial"锛涘紑鍙戠増涓?"develop"
   wxa-subscribe-message:
-    miniprogram-state: developer # 跳转小程序类型：开发版为 “developer”；体验版为 “trial”为；正式版为 “formal”
-  tencent-lbs-key: TVDBZ-TDILD-4ON4B-PFDZA-RNLKH-VVF6E # QQ 地图的密钥 https://lbs.qq.com/service/staticV2/staticGuide/staticDoc
+    miniprogram-state: developer # 璺宠浆灏忕▼搴忕被鍨嬶細寮€鍙戠増涓?鈥渄eveloper鈥濓紱浣撻獙鐗堜负 鈥渢rial鈥濅负锛涙寮忕増涓?鈥渇ormal鈥?
+  tencent-lbs-key: TVDBZ-TDILD-4ON4B-PFDZA-RNLKH-VVF6E # QQ 鍦板浘鐨勫瘑閽?https://lbs.qq.com/service/staticV2/staticGuide/staticDoc
 
 justauth:
   enabled: true
   type:
-    DINGTALK: # 钉钉
+    DINGTALK: # 閽夐拤
       client-id: dingvrnreaje3yqvzhxg
       client-secret: i8E6iZyDvZj51JIb0tYsYfVQYOks9Cq1lgryEjFRqC79P3iJcrxEwT6Qk2QvLrLI
       ignore-check-redirect-uri: true
-    WECHAT_ENTERPRISE: # 企业微信
+    WECHAT_ENTERPRISE: # 浼佷笟寰俊
       client-id: wwd411c69a39ad2e54
       client-secret: 1wTb7hYxnpT2TUbIeHGXGo7T0odav1ic10mLdyyATOw
       agent-id: 1000004
       ignore-check-redirect-uri: true
     # noinspection SpringBootApplicationYaml
-    WECHAT_MINI_PROGRAM: # 微信小程序
+    WECHAT_MINI_PROGRAM: # 寰俊灏忕▼搴?
       client-id: ${wx.miniapp.appid}
       client-secret: ${wx.miniapp.secret}
       ignore-check-redirect-uri: true
-      ignore-check-state: true # 微信小程序，不会使用到 state，所以不进行校验
-    WECHAT_MP: # 微信公众号
+      ignore-check-state: true # 寰俊灏忕▼搴忥紝涓嶄細浣跨敤鍒?state锛屾墍浠ヤ笉杩涜鏍￠獙
+    WECHAT_MP: # 寰俊鍏紬鍙?
       client-id: ${wx.mp.app-id}
       client-secret: ${wx.mp.secret}
       ignore-check-redirect-uri: true
-    ALIPAY: # 支付宝小程序
+    ALIPAY: # 鏀粯瀹濆皬绋嬪簭
       client-id: xx
       client-secret: xx
       alipay-public-key: xx
@@ -273,5 +275,6 @@ justauth:
       ignore-check-state: true
   cache:
     type: REDIS
-    prefix: 'social_auth_state:' # 缓存前缀，目前只对 Redis 缓存生效，默认 JUSTAUTH::STATE::
-    timeout: 24h # 超时时长，目前只对 Redis 缓存生效，默认 3 分钟
+    prefix: 'social_auth_state:' # 缂撳瓨鍓嶇紑锛岀洰鍓嶅彧瀵?Redis 缂撳瓨鐢熸晥锛岄粯璁?JUSTAUTH::STATE::
+    timeout: 24h # 瓒呮椂鏃堕暱锛岀洰鍓嶅彧瀵?Redis 缂撳瓨鐢熸晥锛岄粯璁?3 鍒嗛挓
+

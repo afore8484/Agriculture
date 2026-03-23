@@ -1,4 +1,4 @@
-import {
+﻿import {
   TrendingUp,
   TrendingDown,
   Wallet,
@@ -13,9 +13,9 @@ import {
   Receipt,
 } from "lucide-react";
 import { useNavigate } from "react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Modal, ConfirmDialog } from "./ui/Modal";
+import { Modal } from "./ui/Modal";
 import {
   BarChart,
   Bar,
@@ -37,12 +37,12 @@ const statsCards = [
 ];
 
 const monthlyData = [
-  { month: "1月", 收入: 356000, 支出: 168000 },
-  { month: "2月", 收入: 285000, 支出: 195000 },
-  { month: "3月", 收入: 398000, 支出: 212000 },
-  { month: "4月", 收入: 342000, 支出: 176000 },
-  { month: "5月", 收入: 389000, 支出: 198000 },
-  { month: "6月", 收入: 412860, 支出: 187530 },
+  { month: "1月", income: 356000, expense: 168000 },
+  { month: "2月", income: 285000, expense: 195000 },
+  { month: "3月", income: 398000, expense: 212000 },
+  { month: "4月", income: 342000, expense: 176000 },
+  { month: "5月", income: 389000, expense: 198000 },
+  { month: "6月", income: 412860, expense: 187530 },
 ];
 
 const assetDistribution = [
@@ -56,16 +56,142 @@ const recentVouchers = [
   { id: "PZ-2026-0301", date: "2026-03-09", summary: "收到省级乡村振兴补助款", amount: "¥ 80,000.00", type: "收入", status: "已审核" },
   { id: "PZ-2026-0300", date: "2026-03-08", summary: "支付椰林大道绿化养护费", amount: "¥ 15,800.00", type: "支出", status: "待审核" },
   { id: "PZ-2026-0299", date: "2026-03-08", summary: "槟榔园承包收入", amount: "¥ 12,000.00", type: "收入", status: "已审核" },
-  { id: "PZ-2026-0298", date: "2026-03-07", summary: "村委会办公用品采购", amount: "¥ 3,150.00", type: "支出", status: "已审核" },
+  { id: "PZ-2026-0298", date: "2026-03-07", summary: "办公用品采购", amount: "¥ 3,150.00", type: "支出", status: "已审核" },
   { id: "PZ-2026-0297", date: "2026-03-07", summary: "文化广场水电费", amount: "¥ 2,200.00", type: "支出", status: "待审核" },
 ];
 
 const pendingApprovals = [
   { id: 1, title: "美丽乡村建设工程款", amount: "¥ 56,000.00", applicant: "符国强", date: "2026-03-09", urgency: "紧急" },
-  { id: 2, title: "热带水果种植基地设备", amount: "¥ 12,500.00", applicant: "王海燕", date: "2026-03-08", urgency: "普通" },
+  { id: 2, title: "热带水果基地设备采购", amount: "¥ 12,500.00", applicant: "王海燕", date: "2026-03-08", urgency: "普通" },
   { id: 3, title: "村道硬化修缮费用", amount: "¥ 38,000.00", applicant: "陈大文", date: "2026-03-07", urgency: "紧急" },
   { id: 4, title: "党员教育培训经费", amount: "¥ 4,800.00", applicant: "黄志明", date: "2026-03-07", urgency: "普通" },
 ];
+
+type CommonResult<T> = {
+  code: number;
+  msg?: string;
+  message?: string;
+  data: T;
+};
+
+type HomeStatsResp = {
+  incomeAmount?: number;
+  expenseAmount?: number;
+  assetAmount?: number;
+  pendingTodoCount?: number;
+  urgentTodoCount?: number;
+};
+
+type HomeTodoResp = {
+  todoId?: number;
+  title?: string;
+  createTime?: string | number;
+  bizType?: string;
+  urgency?: string;
+};
+
+type HomeTrendResp = {
+  periodLabel?: string;
+  incomeAmount?: number;
+  expenseAmount?: number;
+};
+
+type HomeAssetDistributionResp = {
+  categoryName?: string;
+  amount?: number;
+};
+
+type HomeRecentVoucherResp = {
+  voucherNo?: string;
+  voucherDate?: string | number[];
+  summary?: string;
+  amount?: number;
+  direction?: string;
+  auditStatus?: string;
+};
+
+type HomeProgressResp = {
+  voucherTotal?: number;
+  auditedTotal?: number;
+  percent?: string;
+};
+
+type HomeYearOptionResp = {
+  year?: number;
+};
+
+type HomeOrgOptionResp = {
+  orgId?: number;
+  orgName?: string;
+  orgCode?: string;
+  ledgerId?: number;
+};
+
+const assetColors = ["#0d9448", "#0ea5e9", "#f59e0b", "#8b5cf6", "#ef4444", "#06b6d4"];
+
+function formatCurrency(value?: number): string {
+  const amount = Number(value ?? 0);
+  return `¥ ${amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
+
+function mapPeriodLabel(label?: string): string {
+  if (!label) {
+    return "-";
+  }
+  const parts = label.split("-");
+  if (parts.length === 2) {
+    return `${Number(parts[1])}月`;
+  }
+  return label;
+}
+
+function mapVoucherType(direction?: string): "收入" | "支出" {
+  return String(direction || "").toUpperCase() === "INCOME" ? "收入" : "支出";
+}
+
+function mapVoucherStatus(status?: string): string {
+  return String(status || "").toUpperCase() === "AUDITED" ? "已审核" : "待审核";
+}
+
+function mapUrgency(urgency?: string): "紧急" | "普通" {
+  return String(urgency || "").toUpperCase() === "URGENT" ? "紧急" : "普通";
+}
+
+function formatDate(value?: string | number | number[]): string {
+  if (value === undefined || value === null || value === "") {
+    return "-";
+  }
+  if (Array.isArray(value)) {
+    const [year, month, day] = value;
+    if (!year || !month || !day) {
+      return "-";
+    }
+    return `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+  }
+  if (typeof value === "number") {
+    return new Date(value).toISOString().slice(0, 10);
+  }
+  return value.includes("T") ? value.split("T")[0] : value;
+}
+
+async function requestJson<T>(path: string, query: Record<string, string | number | undefined> = {}): Promise<T> {
+  const params = new URLSearchParams();
+  Object.entries(query).forEach(([k, v]) => {
+    if (v !== undefined && v !== null && `${v}` !== "") {
+      params.append(k, `${v}`);
+    }
+  });
+  const queryString = params.toString();
+  const response = await fetch(queryString ? `${path}?${queryString}` : path, {
+    method: "GET",
+    headers: { Accept: "application/json" },
+  });
+  const body = (await response.json()) as CommonResult<T>;
+  if (!response.ok || body.code !== 0) {
+    throw new Error(body?.msg || body?.message || `Request failed: ${response.status}`);
+  }
+  return body.data;
+}
 
 const quickActions = [
   { label: "录入凭证", icon: Receipt, color: "#0d9448", path: "/finance/voucher" },
@@ -78,34 +204,231 @@ const quickActions = [
 
 export function Dashboard() {
   const navigate = useNavigate();
+  const currentYear = new Date().getFullYear();
+  const [statsCardsData, setStatsCardsData] = useState(statsCards);
+  const [monthlyDataData, setMonthlyDataData] = useState(monthlyData);
+  const [assetDistributionData, setAssetDistributionData] = useState(assetDistribution);
+  const [recentVouchersData, setRecentVouchersData] = useState(recentVouchers);
+  const [pendingApprovalsData, setPendingApprovalsData] = useState(pendingApprovals);
+  const [yearOptions, setYearOptions] = useState<HomeYearOptionResp[]>([]);
+  const [orgOptions, setOrgOptions] = useState<HomeOrgOptionResp[]>([]);
+  const [selectedYear, setSelectedYear] = useState<number>(currentYear);
+  const [selectedOrgId, setSelectedOrgId] = useState<number | undefined>(undefined);
   const [showVoucherDetail, setShowVoucherDetail] = useState<typeof recentVouchers[0] | null>(null);
   const [showApprovalModal, setShowApprovalModal] = useState<typeof pendingApprovals[0] | null>(null);
   const [showApprovalDetail, setShowApprovalDetail] = useState<typeof pendingApprovals[0] | null>(null);
-  const [approveConfirm, setApproveConfirm] = useState<typeof pendingApprovals[0] | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    requestJson<HomeYearOptionResp[]>("/api/village-finance/home/years")
+      .then((years) => {
+        if (cancelled) {
+          return;
+        }
+        const options = (years || []).filter((item) => Number(item.year) > 0);
+        setYearOptions(options);
+        if (options.length > 0) {
+          setSelectedYear(Number(options[0].year));
+        }
+      })
+      .catch((error) => {
+        if (!cancelled) {
+          toast.warning(`年段加载失败：${error instanceof Error ? error.message : "未知错误"}`);
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    requestJson<HomeOrgOptionResp[]>("/api/village-finance/home/orgs", { year: selectedYear })
+      .then((orgs) => {
+        if (cancelled) {
+          return;
+        }
+        const options = orgs || [];
+        setOrgOptions(options);
+        if (!options.length) {
+          setSelectedOrgId(undefined);
+          return;
+        }
+        setSelectedOrgId((prev) => {
+          if (prev && options.some((item) => Number(item.orgId) === prev)) {
+            return prev;
+          }
+          return Number(options[0].orgId);
+        });
+      })
+      .catch((error) => {
+        if (!cancelled) {
+          toast.warning(`村级组织加载失败：${error instanceof Error ? error.message : "未知错误"}`);
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedYear]);
+
+  useEffect(() => {
+    let cancelled = false;
+    const userId = undefined;
+    const contextParams: Record<string, string | number | undefined> = {
+      year: selectedYear,
+      orgId: selectedOrgId,
+    };
+
+    const loadData = async () => {
+      const [statsRs, todoRs, chartRs, assetRs, voucherRs, progressRs] = await Promise.allSettled([
+        requestJson<HomeStatsResp>("/api/village-finance/home/stats", { ...contextParams, userId }),
+        requestJson<HomeTodoResp[]>("/api/village-finance/home/todos", { ...contextParams, userId, limit: 10 }),
+        requestJson<HomeTrendResp[]>("/api/village-finance/home/charts", { ...contextParams, months: 6 }),
+        requestJson<HomeAssetDistributionResp[]>("/api/village-finance/home/asset-distribution", contextParams),
+        requestJson<HomeRecentVoucherResp[]>("/api/village-finance/home/recent-vouchers", { ...contextParams, limit: 5 }),
+        requestJson<HomeProgressResp>("/api/village-finance/home/progress", contextParams),
+      ]);
+
+      let failedCount = 0;
+
+      if (statsRs.status === "fulfilled") {
+        const stats = statsRs.value;
+        const urgent = Number(stats.urgentTodoCount ?? 0);
+        const progress = progressRs.status === "fulfilled" ? (progressRs.value.percent || "--") : "--";
+        if (!cancelled) {
+          setStatsCardsData([
+            { ...statsCards[0], value: formatCurrency(stats.incomeAmount), change: "--" },
+            { ...statsCards[1], value: formatCurrency(stats.expenseAmount), change: "--" },
+            { ...statsCards[2], value: formatCurrency(stats.assetAmount), change: "--" },
+            {
+              ...statsCards[3],
+              value: String(stats.pendingTodoCount ?? 0),
+              change: `${urgent} 项紧急 / 进度 ${progress}`,
+              trend: urgent > 0 ? "alert" : "up",
+            },
+          ]);
+        }
+      } else {
+        failedCount += 1;
+      }
+
+      if (progressRs.status !== "fulfilled") {
+        failedCount += 1;
+      }
+
+      if (todoRs.status === "fulfilled") {
+        const mapped = (todoRs.value || []).map((item, index) => ({
+          id: Number(item.todoId ?? index + 1),
+          title: item.title || "待审批事项",
+          amount: "¥ 0.00",
+          applicant: item.bizType || "-",
+          date: formatDate(item.createTime),
+          urgency: mapUrgency(item.urgency),
+        }));
+        if (!cancelled) {
+          setPendingApprovalsData(mapped);
+        }
+      } else {
+        failedCount += 1;
+      }
+
+      if (chartRs.status === "fulfilled") {
+        const mapped = (chartRs.value || []).map((item) => ({
+          month: mapPeriodLabel(item.periodLabel),
+          income: Number(item.incomeAmount ?? 0),
+          expense: Number(item.expenseAmount ?? 0),
+        }));
+        if (!cancelled) {
+          setMonthlyDataData(mapped);
+        }
+      } else {
+        failedCount += 1;
+      }
+
+      if (assetRs.status === "fulfilled") {
+        const mapped = (assetRs.value || []).map((item, index) => ({
+          name: item.categoryName || `分类${index + 1}`,
+          value: Number(item.amount ?? 0),
+          color: assetColors[index % assetColors.length],
+        }));
+        if (!cancelled) {
+          setAssetDistributionData(mapped);
+        }
+      } else {
+        failedCount += 1;
+      }
+
+      if (voucherRs.status === "fulfilled") {
+        const mapped = (voucherRs.value || []).map((item, index) => {
+          const type = mapVoucherType(item.direction);
+          return {
+            id: item.voucherNo || `PZ-NA-${index + 1}`,
+            date: formatDate(item.voucherDate),
+            summary: item.summary || "-",
+            amount: formatCurrency(item.amount),
+            type,
+            status: mapVoucherStatus(item.auditStatus),
+          };
+        });
+        if (!cancelled) {
+          setRecentVouchersData(mapped);
+        }
+      } else {
+        failedCount += 1;
+      }
+
+      if (!cancelled && failedCount > 0) {
+        toast.warning(`工作台部分数据加载失败（${failedCount}项）`);
+      }
+    };
+
+    loadData().catch((error) => {
+      if (!cancelled) {
+        toast.error(`工作台数据加载失败: ${error instanceof Error ? error.message : "未知错误"}`);
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedYear, selectedOrgId]);
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-foreground">工作台</h1>
-          <p className="text-muted-foreground mt-1">欢迎回来，管理员。今天是 2026年3月9日 星期一</p>
+          <p className="text-muted-foreground mt-1">欢迎回来，管理员。当前展示所选年段与村级组织的数据。</p>
         </div>
         <div className="flex gap-2">
-          <select className="bg-white border border-border rounded-lg px-3 py-1.5 outline-none">
-            <option>2026年度</option>
-            <option>2025年度</option>
+          <select
+            className="bg-white border border-border rounded-lg px-3 py-1.5 outline-none"
+            value={selectedYear}
+            onChange={(e) => setSelectedYear(Number(e.target.value))}
+          >
+            {yearOptions.map((item) => (
+              <option key={item.year} value={item.year}>
+                {item.year}年度
+              </option>
+            ))}
           </select>
-          <select className="bg-white border border-border rounded-lg px-3 py-1.5 outline-none">
-            <option>博鳌镇椰林村</option>
-            <option>博鳌镇南强村</option>
-            <option>潭门镇排港村</option>
+          <select
+            className="bg-white border border-border rounded-lg px-3 py-1.5 outline-none"
+            value={selectedOrgId ?? ""}
+            onChange={(e) => setSelectedOrgId(e.target.value ? Number(e.target.value) : undefined)}
+          >
+            {orgOptions.map((item) => (
+              <option key={item.orgId} value={item.orgId}>
+                {item.orgName || item.orgCode || item.orgId}
+              </option>
+            ))}
           </select>
         </div>
       </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {statsCards.map((card) => {
+        {statsCardsData.map((card) => {
           const Icon = card.icon;
           return (
             <div key={card.label} className="bg-white rounded-xl p-5 border border-border shadow-sm hover:shadow-md transition-shadow">
@@ -125,7 +448,7 @@ export function Dashboard() {
                 <span className={`text-[13px] ${card.trend === "alert" ? "text-red-500" : "text-green-600"}`}>
                   {card.change}
                 </span>
-                <span className="text-muted-foreground text-[13px]">较上月</span>
+                <span className="text-muted-foreground text-[13px]">较上期</span>
               </div>
             </div>
           );
@@ -165,13 +488,13 @@ export function Dashboard() {
             </select>
           </div>
           <ResponsiveContainer width="100%" height={280}>
-            <BarChart data={monthlyData}>
+            <BarChart data={monthlyDataData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e8ece9" />
               <XAxis dataKey="month" axisLine={false} tickLine={false} />
               <YAxis axisLine={false} tickLine={false} tickFormatter={(v) => `${v / 10000}万`} />
               <Tooltip formatter={(value: number) => `¥ ${value.toLocaleString()}`} />
-              <Bar dataKey="收入" fill="#0d9448" radius={[4, 4, 0, 0]} barSize={24} name="收入" />
-              <Bar dataKey="支出" fill="#0ea5e9" radius={[4, 4, 0, 0]} barSize={24} name="支出" />
+              <Bar dataKey="income" fill="#0d9448" radius={[4, 4, 0, 0]} barSize={24} name="收入" />
+              <Bar dataKey="expense" fill="#0ea5e9" radius={[4, 4, 0, 0]} barSize={24} name="支出" />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -181,7 +504,7 @@ export function Dashboard() {
           <ResponsiveContainer width="100%" height={200}>
             <PieChart>
               <Pie
-                data={assetDistribution}
+                data={assetDistributionData}
                 cx="50%"
                 cy="50%"
                 innerRadius={50}
@@ -189,7 +512,7 @@ export function Dashboard() {
                 dataKey="value"
                 stroke="none"
               >
-                {assetDistribution.map((entry) => (
+                {assetDistributionData.map((entry) => (
                   <Cell key={entry.name} fill={entry.color} />
                 ))}
               </Pie>
@@ -197,7 +520,7 @@ export function Dashboard() {
             </PieChart>
           </ResponsiveContainer>
           <div className="space-y-2 mt-2">
-            {assetDistribution.map((item) => (
+            {assetDistributionData.map((item) => (
               <div key={item.name} className="flex items-center justify-between text-[13px]">
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: item.color }} />
@@ -229,7 +552,7 @@ export function Dashboard() {
                 </tr>
               </thead>
               <tbody>
-                {recentVouchers.map((v) => (
+                {recentVouchersData.map((v) => (
                   <tr key={v.id} className="border-b border-border/50 hover:bg-muted/30 cursor-pointer" onClick={() => setShowVoucherDetail(v)}>
                     <td className="py-2.5 text-primary cursor-pointer hover:underline">{v.id}</td>
                     <td className="py-2.5 text-muted-foreground">{v.date}</td>
@@ -253,7 +576,7 @@ export function Dashboard() {
             <button className="text-primary text-[13px] hover:underline" onClick={() => navigate("/approval/center")}>查看全部</button>
           </div>
           <div className="space-y-3">
-            {pendingApprovals.map((item) => (
+            {pendingApprovalsData.map((item) => (
               <div key={item.id} className="flex items-center justify-between p-3 rounded-lg border border-border/60 hover:border-primary/30 hover:bg-green-50/30 transition-colors">
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
@@ -344,3 +667,5 @@ export function Dashboard() {
     </div>
   );
 }
+
+

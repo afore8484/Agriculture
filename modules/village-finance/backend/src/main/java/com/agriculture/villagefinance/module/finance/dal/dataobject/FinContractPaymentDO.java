@@ -7,22 +7,25 @@ import cn.iocoder.yudao.framework.tenant.core.aop.TenantIgnore;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data
 @TenantIgnore
-@TableName("fin_asset_depreciation")
-public class FinAssetDepreciationDO {
+@TableName("fin_contract_payment")
+public class FinContractPaymentDO {
 
     @TableId(type = IdType.AUTO)
     private Long id;
-    private Long assetId;
-    private Long bookId;
-    private String periodLabel;
-    private BigDecimal depreciationAmount;
-    private BigDecimal accumulatedAmount;
-    private BigDecimal netValueAfter;
+    private Long contractId;
+    private String paymentType;
+    private LocalDate paymentDate;
+    private BigDecimal amount;
+    private Long bankAccountId;
+    private Long cashAccountId;
+    private Long journalId;
     private Long voucherId;
+    private String status;
     private Long createdBy;
     private LocalDateTime createdAt;
     private String remark;
